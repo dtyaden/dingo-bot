@@ -1,0 +1,35 @@
+apply plugin: "java"
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+mainClassName = "engine.DingoEngine"
+
+distZip {
+	baseName = "Dingo-Bot-9000"
+	version = "1.0"
+	destinationDir = file("/home/memebox/Dingo-Bot/")
+	archiveName = "${baseName}.${version}.${extension}"
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Dingo-Bot-9000',
+                   'Implementation-Version': 1.0,
+                   'Main-Class': 'engine.DingoEngine'
+    }
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+	maven{
+		url "https://jitpack.io"
+	}
+}
+
+dependencies {
+	compile "com.github.austinv11:Discord4J:2.8.2"
+	compile group: 'commons-io', name: 'commons-io', version: '2.4'
+	compile 'junit:junit:4.12'
+
+}

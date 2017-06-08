@@ -1,0 +1,13 @@
+#/bin.bash
+destDir="build/distributions/"
+
+gradle distZip
+
+cp -r sounds/ $destDir/
+cp profile.jpg $destDIr/
+
+cd $destDir
+cd ../
+
+zip -r Dingo-Bot-9000.zip distributions/
+
