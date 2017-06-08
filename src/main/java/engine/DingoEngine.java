@@ -15,11 +15,11 @@ public class DingoEngine {
 	public static final String dingoID = "MzIwNjc5NjI4ODExNTM0MzM5.DBT3gg.DMrzy5mGHz6iWyacwOyb7JuS140";
 	public static LanguageEngine languageEngine = new LanguageEngine();
 	public static boolean debug = false;
-	public static String imageLocation = "profile.jpg";
+	public static String imageLocation = "src/resources/profile.jpg";
 	private static IDiscordClient dingo;
 	private static long timeout = 30000;
-	public static final String FILE_PLAY_COUNT_lOCATION = "PLAYCOUNT";
-	public static final String AUDIO_DIRECTORY = "sounds/";
+	public static final String FILE_PLAY_COUNT_lOCATION = "src/resources/PLAYCOUNT";
+	public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
 	
 	public static void main(String[] args) {
 		System.out.println("starting dingo engine...");

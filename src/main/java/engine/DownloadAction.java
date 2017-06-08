@@ -15,7 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 public class DownloadAction {
 	
 	public static HashMap<String, String> extensions = new HashMap<>();
-	public static final String SOUND_DIRECTORY = "src/sounds";
+	public static final String SOUND_DIRECTORY = DingoEngine.AUDIO_DIRECTORY;
 	
 	static{
 		extensions.put("mp4", SOUND_DIRECTORY);
