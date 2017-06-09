@@ -17,8 +17,7 @@ public class NavySeal extends AbstractOperation{
 
 	@Override
 	public String getInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return "The bot will talk about its experience in the military.";
 	}
 
 }

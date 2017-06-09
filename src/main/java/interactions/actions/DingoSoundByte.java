@@ -8,7 +8,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import engine.DingoBotUtil;
 import engine.DingoEngine;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
@@ -28,7 +31,7 @@ public class DingoSoundByte extends AbstractOperation{
 	public DingoSoundByte(IMessage message) {
 		super(message);
 	}
-
+	
 	@Override
 	public void run() {
 		IDiscordClient dingo = DingoEngine.getBot();
@@ -40,17 +43,19 @@ public class DingoSoundByte extends AbstractOperation{
 			return;
 		}
 		String [] messageContent = message.getContent().split(" ");
-		if(messageContent.length < 3){
-			String err = "Invalid message. You need to have a file name or url after the 'play' command";
-			System.out.println(err);
-			throw new RuntimeException(err);
+		int startingPosition;
+		if(messageContent.length <= 2){
+			startingPosition = 1;
+		}
+		else{
+			startingPosition = 2;
 		}
 		// Fix checking if it's a url and finding the file name if it's not
-		if(messageContent[2].startsWith("http")){
+		if(messageContent[startingPosition].startsWith("http")){
 			playURL(message, channel);
 		}
 		else{
-			playAudioFile(message, channel);
+			playAudioFile(message, channel, startingPosition);
 		}
 	}
 	
@@ -94,17 +99,22 @@ public class DingoSoundByte extends AbstractOperation{
 	}
 	
 	public void playURL(IMessage message, IVoiceChannel channel){
-		AudioPlayer p = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
-		AudioInputStream stream;
 		channel.sendMessage("I don't understand what a fucking url is");
 		return;
 	}
 	
-	public void playAudioFile(IMessage message, IVoiceChannel channel){
-		AudioPlayer p = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+	public static AudioPlayer getAudioPlayer(IGuild guild){
+		AudioPlayer p = AudioPlayer.getAudioPlayerForGuild(guild);
+		p.setVolume(Volume.getClampedVolume());
+		return p;
+	}
+	
+	public void playAudioFile(IMessage message, IVoiceChannel channel, int startingPosition){
+		AudioPlayer p = DingoSoundByte.getAudioPlayer(message.getGuild());
 		p.clear();
-		String trackName = getTrackName(message).toLowerCase();
+		String trackName = getTrackName(message, startingPosition).toLowerCase();
 		File soundDir = new File(DingoEngine.AUDIO_DIRECTORY);
+		
 		if(!soundDir.exists()){
 			try {
 				soundDir.createNewFile();
@@ -113,6 +123,7 @@ public class DingoSoundByte extends AbstractOperation{
 				e.printStackTrace();
 			}
 		}
+		
 		File[] sounds = soundDir.listFiles();
 		File[] tracks = new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
 		if(tracks!= null && tracks.length > 0){
@@ -139,16 +150,27 @@ public class DingoSoundByte extends AbstractOperation{
 		return "<FILE NAME OR URL>";
 	}
 	
-	public String getTrackName(IMessage message){
+	public String getTrackName(IMessage message, int startingPosition){
 		String messageString = message.getContent().trim();
 		
 		String[] messageContent = messageString.split("[' ']+");
+		List<String> contentList = Arrays.asList(messageContent);
 		
-		if(messageContent.length < 3){
+		if(contentList.size() < 2){
 			return "";
 		}
+		
+		int startPosition;
+		if(contentList.size() < 3){
+			startPosition = 1;
+		}
+		else{
+			startPosition = 2;
+		}
+		
+		
 		StringBuilder fileName = new StringBuilder();
-		for(int i = 2; i < messageContent.length; i++){
+		for(int i = startPosition ; i < messageContent.length; i++){
 			fileName.append(messageContent[i] + " ");
 		}
 		return fileName.toString().trim();

@@ -13,14 +13,16 @@ import interactions.actions.DingoOperation;
 import interactions.actions.DingoSoundByte;
 import interactions.actions.MemeMe;
 import interactions.actions.Stop;
+import interactions.actions.Volume;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
-public class LanguageEngine {
+public class  LanguageEngine{
 	public static final HashMap<String, DingoAction> commands = new HashMap<>();
 	InputStream input;
-	
+	public static final String[] BAD_WORDS = {"fuckboi","fidgetspinner", "fidget spinner", "fidget-spinner",
+			"marco rubio"};
 	static{
 		commands.put("mememe", (message)-> new MemeMe(message));
 		commands.put("play", (message) -> new DingoSoundByte(message));
@@ -28,6 +30,7 @@ public class LanguageEngine {
 		commands.put("list", (message) -> new ListTracks(message));
 		commands.put("pasta", (message) -> new NavySeal(message));
 		commands.put("playcount", (message) -> new ListPlayCount(message));
+		commands.put("volume", (message) -> new Volume(message));
 	}
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();
@@ -42,6 +45,12 @@ public class LanguageEngine {
 			DingoEngine.stopDingo();
 			return;
 		}
+		
+		if(StringUtils.equals(input[1].toLowerCase(),"help")){
+			displayHelpMessage(message.getChannel(), message.getAuthor());
+			return;
+		}
+		
 		for(int i = 0; i < input.length; i++){
 			String word = input[i].toLowerCase();
 			DingoAction command = commands.get(word);
@@ -50,13 +59,23 @@ public class LanguageEngine {
 				return;
 			}
 		}
-		displayHelpMessage(message.getChannel(), message.getAuthor());
+		commands.get("play").getOperation(message).run();
 	}
 	
 	public static void displayHelpMessage(IChannel channel, IUser fuckboi){
 		StringBuilder builder = new StringBuilder();
 		builder.append("Usage:\n");
-		commands.entrySet().forEach(entry -> builder.append(entry.getKey().toString() + "\n"));
+		commands.entrySet().forEach(entry -> builder.append(entry.getKey().toString()).append(" - " + entry.getValue().
+				getOperation(null).getInfo()).append("\n"));
+		
 		channel.sendMessage(builder.toString().trim());
+	}
+	
+	public static String naughtyWordFilter(String[] messageContent) {
+		StringBuilder response = new StringBuilder();
+		for(String str : messageContent){
+			
+		}
+		return response.toString();
 	}
 }

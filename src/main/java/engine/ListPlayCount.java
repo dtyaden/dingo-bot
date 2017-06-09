@@ -61,7 +61,7 @@ public class ListPlayCount extends AbstractOperation{
 	
 	@Override
 	public String getInfo() {
-		return null;
+		return "Get a list of how many times each audio meme has been played in descending order.";
 	}
 
 }

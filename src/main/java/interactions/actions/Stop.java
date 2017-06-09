@@ -16,8 +16,7 @@ public class Stop extends AbstractOperation{
 
 	@Override
 	public String getInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Stop whatever the bot is playing";
 	}
 	
 }
