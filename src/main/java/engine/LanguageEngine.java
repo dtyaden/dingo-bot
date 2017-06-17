@@ -23,6 +23,7 @@ public class  LanguageEngine{
 	InputStream input;
 	public static final String[] BAD_WORDS = {"fuckboi","fidgetspinner", "fidget spinner", "fidget-spinner",
 			"marco rubio"};
+	
 	static{
 		commands.put("mememe", (message)-> new MemeMe(message));
 		commands.put("play", (message) -> new DingoSoundByte(message));

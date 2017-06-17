@@ -1,10 +1,10 @@
 #/bin.bash
 destDir="build/distributions/"
 
-gradle distZip
+gradle installDist
 
-cp -r sounds/ $destDir/
-cp profile.jpg $destDIr/
+#cp -r src/resources/ $destDir/
+#cp profile.jpg $destDIr/
 
 cd $destDir
 cd ../

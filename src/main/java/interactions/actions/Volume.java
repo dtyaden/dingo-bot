@@ -10,6 +10,8 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 public class Volume extends AbstractOperation{
 	
+	public static final float MAX_VOLUME = 100;
+	public static final float MIN_VOLUME = 0;
 	public static float AUDIOVOLUME = 1;
 	
 	public Volume(IMessage message){
@@ -46,8 +48,6 @@ public class Volume extends AbstractOperation{
 		builder = builder.appendContent("Volume has been set to: " + getVolumeHuman());
 		builder.send();
 	}
-	public static final float MAX_VOLUME = 100;
-	public static final float MIN_VOLUME = 0;
 	
 	/**
 	 * Restricts volume to a range of 0-1
@@ -79,5 +79,4 @@ public class Volume extends AbstractOperation{
 	public static float getClampedVolume(){
 		return clampVolume(AUDIOVOLUME);
 	}
-
 }

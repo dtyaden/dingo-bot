@@ -24,6 +24,7 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 public class DingoSoundByte extends AbstractOperation{
@@ -123,22 +124,34 @@ public class DingoSoundByte extends AbstractOperation{
 				e.printStackTrace();
 			}
 		}
-		
+		try{
+			System.out.println("joining channel");
+			channel.join();
+		}
+		catch(Exception e){
+			System.out.println("failed to join channel");
+			e.printStackTrace();
+		}
 		File[] sounds = soundDir.listFiles();
 		File[] tracks = new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
 		if(tracks!= null && tracks.length > 0){
 			try {
-				channel.join();
+				
+				System.out.println(tracks[0].getName() + " playing");
 				p.queue(tracks[0]);
 				incrementPlayCount(tracks[0].getName());
 				if(StringUtils.equals(tracks[0].getName(), "memelord.wav")){
 					message.reply("me");
 				}
-			} catch (IOException e) {
+			} catch (DiscordException e){
+				e.printStackTrace();
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			} catch (UnsupportedAudioFileException e) {
 				e.printStackTrace();
 			}
+			
 		}
 		else{
 			message.getChannel().sendMessage("I don't see a file containing '"+ trackName + "' here...");
