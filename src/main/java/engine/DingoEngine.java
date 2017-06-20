@@ -12,7 +12,8 @@ import sx.blah.discord.util.Image;
 
 public class DingoEngine {
 	
-	public static final String dingoID = "MzIwNjc5NjI4ODExNTM0MzM5.DBT3gg.DMrzy5mGHz6iWyacwOyb7JuS140";
+	private static final String dingoId = "MzIwNjc5NjI4ODExNTM0MzM5.DBT3gg.DMrzy5mGHz6iWyacwOyb7JuS140";
+	private static final String dingoTestId = "MzI1ODc2NzE1NjgxMjE4NTcw.DCeqVQ.B2CNHu8IWbvxCcTquK_JF6UwN6k";
 	public static LanguageEngine languageEngine = new LanguageEngine();
 	public static boolean debug = false;
 	public static String imageLocation = "src/resources/profile.jpg";
@@ -21,16 +22,16 @@ public class DingoEngine {
 	public static final String FILE_PLAY_COUNT_lOCATION = "src/resources/PLAYCOUNT";
 	public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
 	
-	public static void main(String[] args) {
-		System.out.println("starting dingo engine...");
-		DingoEngine engine = new DingoEngine();
-		CLIThread cli = new CLIThread();
-		cli.start();
-		engine.run(dingoID);
+	public static String getDingoTestId(){
+		return dingoTestId;
+	}
+	
+	public static String getDingoId(){
+		return dingoId;
 	}
 	
 	public void run(String clientID){
-		IDiscordClient dingo = createClient(dingoID,false);
+		IDiscordClient dingo = createClient(clientID,false);
 		DingoEngine.dingo = dingo;
 		
 		dingo.getDispatcher().registerListener(new MentionListener(Long.parseLong(dingo.getApplicationClientID())));

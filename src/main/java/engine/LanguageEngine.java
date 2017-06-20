@@ -12,6 +12,7 @@ import interactions.actions.DingoAction;
 import interactions.actions.DingoOperation;
 import interactions.actions.DingoSoundByte;
 import interactions.actions.MemeMe;
+import interactions.actions.ODouls;
 import interactions.actions.Stop;
 import interactions.actions.Volume;
 import sx.blah.discord.handle.obj.IChannel;
@@ -32,6 +33,7 @@ public class  LanguageEngine{
 		commands.put("pasta", (message) -> new NavySeal(message));
 		commands.put("playcount", (message) -> new ListPlayCount(message));
 		commands.put("volume", (message) -> new Volume(message));
+		commands.put("odouls", (message) -> new ODouls(message));
 	}
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();
@@ -44,6 +46,12 @@ public class  LanguageEngine{
 		String authorName = message.getAuthor().getName();
 		if(StringUtils.equals(message.getContent(), "shutdown") && admin.contains(authorName)){
 			DingoEngine.stopDingo();
+			return;
+		}
+		
+		if(message.getContent().split("[ ]+")[1].toLowerCase().equals("please")){
+			AdminPowers power = new AdminPowers(message);
+			power.run();
 			return;
 		}
 		

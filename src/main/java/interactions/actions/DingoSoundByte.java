@@ -8,11 +8,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,12 +25,15 @@ import org.apache.commons.lang3.StringUtils;
 import engine.DingoBotUtil;
 import engine.DingoEngine;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.audio.IAudioProcessor;
+import sx.blah.discord.handle.audio.impl.DefaultProcessor;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.audio.AudioPlayer;
+import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
 
 public class DingoSoundByte extends AbstractOperation{
 
@@ -136,8 +144,8 @@ public class DingoSoundByte extends AbstractOperation{
 		File[] tracks = new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
 		if(tracks!= null && tracks.length > 0){
 			try {
-				
 				System.out.println(tracks[0].getName() + " playing");
+				MappedByteBuffer stream = new FileInputStream(tracks[0]).getChannel().map(FileChannel.MapMode.READ_ONLY, 0, tracks[0].length());
 				p.queue(tracks[0]);
 				incrementPlayCount(tracks[0].getName());
 				if(StringUtils.equals(tracks[0].getName(), "memelord.wav")){

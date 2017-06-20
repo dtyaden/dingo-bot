@@ -32,5 +32,4 @@ public class DingoBotUtil {
 		}
 		return null;
 	}
-	
 }

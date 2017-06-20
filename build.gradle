@@ -11,6 +11,8 @@ distZip {
 	archiveName = "${baseName}.${version}.${extension}"
 }
 
+
+
 distributions{
 	main {
 		baseName = "Dingo-Bot-9000"

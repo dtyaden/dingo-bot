@@ -8,7 +8,6 @@ public class TestAudio {
 
 	public DingoEngine setupEngine(){
 		DingoEngine engine = new DingoEngine();
-		engine.run(DingoEngine.dingoID);
 		return engine;
 	}
 	
