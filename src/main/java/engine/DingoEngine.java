@@ -22,6 +22,8 @@ public class DingoEngine {
 	public static final String FILE_PLAY_COUNT_lOCATION = "src/resources/PLAYCOUNT";
 	public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
 	
+	private static String runningID;
+	
 	public static String getDingoTestId(){
 		return dingoTestId;
 	}
@@ -31,6 +33,7 @@ public class DingoEngine {
 	}
 	
 	public void run(String clientID){
+		runningID=clientID;
 		IDiscordClient dingo = createClient(clientID,false);
 		DingoEngine.dingo = dingo;
 		
@@ -83,9 +86,9 @@ public class DingoEngine {
     	return timeout;
     }
     
-    public static void stopDingo(){
+    public static void restart(){
     	SpamThread.stopRunning();
     	dingo.logout();
-    	System.exit(1);
+    	new DingoEngine().run(DingoEngine.runningID);
     }
 }

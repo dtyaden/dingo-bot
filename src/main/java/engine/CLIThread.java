@@ -11,6 +11,6 @@ public class CLIThread extends Thread{
 		while(!input.equals("stop")){
 			input = in.nextLine();
 		}
-		DingoEngine.stopDingo();
+		DingoEngine.restart();
 	}
 }

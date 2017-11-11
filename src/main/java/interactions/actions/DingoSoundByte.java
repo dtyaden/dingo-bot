@@ -36,7 +36,7 @@ import sx.blah.discord.util.audio.AudioPlayer;
 import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
 
 public class DingoSoundByte extends AbstractOperation{
-
+	
 	public DingoSoundByte(IMessage message) {
 		super(message);
 	}
@@ -140,12 +140,10 @@ public class DingoSoundByte extends AbstractOperation{
 			System.out.println("failed to join channel");
 			e.printStackTrace();
 		}
-		File[] sounds = soundDir.listFiles();
 		File[] tracks = new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
 		if(tracks!= null && tracks.length > 0){
 			try {
 				System.out.println(tracks[0].getName() + " playing");
-				MappedByteBuffer stream = new FileInputStream(tracks[0]).getChannel().map(FileChannel.MapMode.READ_ONLY, 0, tracks[0].length());
 				p.queue(tracks[0]);
 				incrementPlayCount(tracks[0].getName());
 				if(StringUtils.equals(tracks[0].getName(), "memelord.wav")){

@@ -42,7 +42,9 @@ public class DownloadAction {
 				URLConnection conn = attachment.openConnection();
 				conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36");
 				conn.connect();
-				FileUtils.copyInputStreamToFile(conn.getInputStream(), new File(DingoEngine.AUDIO_DIRECTORY + fileName));
+				String fullPath = DingoEngine.AUDIO_DIRECTORY + fileName;
+				System.out.println("Downloading file to " + fullPath);
+				FileUtils.copyInputStreamToFile(conn.getInputStream(), new File(fullPath));
 				return true;
 			}
 			else{

@@ -49,7 +49,9 @@ public class SpamThread extends Thread{
 	}
 	
 	public static void stopRunning(){
-		SpamThread.continueRunnning.set(false);
+		if(SpamThread.continueRunnning != null){
+			SpamThread.continueRunnning.set(false);
+		}
 	}
 	
 }

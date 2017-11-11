@@ -9,6 +9,7 @@ distZip {
 	version = "1.0"
 	destinationDir = file(System.getProperty("user.dir"))
 	archiveName = "${baseName}.${version}.${extension}"
+	exclude 'src/resources/*'
 }
 
 
@@ -17,7 +18,7 @@ distributions{
 	main {
 		baseName = "Dingo-Bot-9000"
 		contents{
-			from{ 'src/resources/'}
+			from{ 'src/main/'}
 		}
 	}
 }

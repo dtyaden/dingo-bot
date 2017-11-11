@@ -17,6 +17,7 @@ import interactions.actions.Stop;
 import interactions.actions.Volume;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 public class  LanguageEngine{
@@ -34,6 +35,7 @@ public class  LanguageEngine{
 		commands.put("playcount", (message) -> new ListPlayCount(message));
 		commands.put("volume", (message) -> new Volume(message));
 		commands.put("odouls", (message) -> new ODouls(message));
+		commands.put("restart", (message) -> new Restart(message));
 	}
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();
@@ -44,10 +46,9 @@ public class  LanguageEngine{
 		String content = message.getContent().trim();
 		String[]  input = content.split(" ");
 		String authorName = message.getAuthor().getName();
-		if(StringUtils.equals(message.getContent(), "shutdown") && admin.contains(authorName)){
-			DingoEngine.stopDingo();
-			return;
-		}
+		
+		//TODO: allow anyone to restart dingo-bot
+		List<IRole> authorRoles = message.getAuthor().getRolesForGuild(message.getGuild());
 		
 		if(message.getContent().split("[ ]+")[1].toLowerCase().equals("please")){
 			AdminPowers power = new AdminPowers(message);
