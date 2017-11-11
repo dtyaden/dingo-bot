@@ -5,7 +5,7 @@ public class MainBot {
 		System.out.println("starting dingo engine...");
 		DingoEngine engine = new DingoEngine();
 		CLIThread cli = new CLIThread();
-		String dingoID = DingoEngine.getDingoId();
+		String dingoID = args[0];
 		cli.start();
 		engine.run(dingoID);
 	}

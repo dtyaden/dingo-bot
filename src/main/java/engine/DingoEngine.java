@@ -12,8 +12,6 @@ import sx.blah.discord.util.Image;
 
 public class DingoEngine {
 	
-	private static final String dingoId = "MzIwNjc5NjI4ODExNTM0MzM5.DBT3gg.DMrzy5mGHz6iWyacwOyb7JuS140";
-	private static final String dingoTestId = "MzI1ODc2NzE1NjgxMjE4NTcw.DCeqVQ.B2CNHu8IWbvxCcTquK_JF6UwN6k";
 	public static LanguageEngine languageEngine = new LanguageEngine();
 	public static boolean debug = false;
 	public static String imageLocation = "src/resources/profile.jpg";
@@ -23,14 +21,6 @@ public class DingoEngine {
 	public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
 	
 	private static String runningID;
-	
-	public static String getDingoTestId(){
-		return dingoTestId;
-	}
-	
-	public static String getDingoId(){
-		return dingoId;
-	}
 	
 	public void run(String clientID){
 		runningID=clientID;
