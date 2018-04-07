@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import interactions.actions.AbstractOperation;
+import sx.blah.discord.handle.impl.obj.Message;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.MessageBuilder;
 
@@ -33,13 +34,25 @@ public class ListTracks extends AbstractOperation{
 			}
 			
 		});
-		tracks.forEach(file -> trackList.append(file.getName()+ '\n'));
+		int messageLength = 0;
+		for(File track : tracks) {
+			if(messageLength > 50) {
+				messageLength = 0;
+				sendMessage(message, trackList.toString());
+				trackList.setLength(0);
+			}
+			trackList.append(track.getName() + '\n');
+		}
+		sendMessage(message, trackList.toString());
+	}
+	
+	public void sendMessage(IMessage message, String trackList) {
 		MessageBuilder messageBuilder = new MessageBuilder(DingoEngine.getBot());
 		messageBuilder.withChannel(message.getAuthor().getOrCreatePMChannel());
 		messageBuilder.withContent(trackList.toString().trim());
 		messageBuilder.send();
 	}
-
+	
 	@Override
 	public String getInfo() {
 		return "The bot will message you a list of all available audio shitposts";
