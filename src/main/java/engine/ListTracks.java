@@ -42,6 +42,7 @@ public class ListTracks extends AbstractOperation{
 				trackList.setLength(0);
 			}
 			trackList.append(track.getName() + '\n');
+			messageLength++;
 		}
 		sendMessage(message, trackList.toString());
 	}
