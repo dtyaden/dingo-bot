@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import engine.DingoBotUtil;
 import engine.DingoEngine;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.audio.IAudioManager;
 import sx.blah.discord.handle.audio.IAudioProcessor;
 import sx.blah.discord.handle.audio.impl.DefaultProcessor;
 import sx.blah.discord.handle.obj.IGuild;
@@ -112,15 +113,20 @@ public class DingoSoundByte extends AbstractOperation{
 		return;
 	}
 	
-	public static AudioPlayer getAudioPlayer(IGuild guild){
-		AudioPlayer p = AudioPlayer.getAudioPlayerForGuild(guild);
-		p.setVolume(Volume.getClampedVolume());
-		return p;
+	public class DingoAudioPlayer extends AudioPlayer {
+
+		public DingoAudioPlayer(IAudioManager manager) {
+			super(manager);
+		}
+		
+		
+	}
+	
+	public AudioPlayer getAudioPlayer(IGuild guild){
+		return new AudioPlayer(guild);
 	}
 	
 	public void playAudioFile(IMessage message, IVoiceChannel channel, int startingPosition){
-		AudioPlayer p = DingoSoundByte.getAudioPlayer(message.getGuild());
-		p.clear();
 		String trackName = getTrackName(message, startingPosition).toLowerCase();
 		File soundDir = new File(DingoEngine.AUDIO_DIRECTORY);
 		
@@ -144,6 +150,9 @@ public class DingoSoundByte extends AbstractOperation{
 		if(tracks!= null && tracks.length > 0){
 			try {
 				System.out.println(tracks[0].getName() + " playing");
+				AudioPlayer p = getAudioPlayer(message.getGuild());
+				p.clear();
+				p.setVolume(Volume.getClampedVolume());
 				p.queue(tracks[0]);
 				incrementPlayCount(tracks[0].getName());
 				if(StringUtils.equals(tracks[0].getName(), "memelord.wav")){
