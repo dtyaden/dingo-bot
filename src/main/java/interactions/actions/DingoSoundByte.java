@@ -123,7 +123,7 @@ public class DingoSoundByte extends AbstractOperation{
 	}
 	
 	public AudioPlayer getAudioPlayer(IGuild guild){
-		return new AudioPlayer(guild);
+		return AudioPlayer.getAudioPlayerForGuild(guild);
 	}
 	
 	public void playAudioFile(IMessage message, IVoiceChannel channel, int startingPosition){
@@ -154,7 +154,14 @@ public class DingoSoundByte extends AbstractOperation{
 			try {
 				System.out.println(tracks[0].getName() + " playing");
 				AudioPlayer p = getAudioPlayer(message.getGuild());
-				p.clear();
+				if (p.getCurrentTrack() != null) {
+					System.out.println("track playing queueing pan");
+					p.clear();
+					File pan = searchForFile("pan")[0];
+					if(!pan.equals(tracks[0])) {
+						p.queue(pan);
+					}
+				}
 				p.setVolume(Volume.getClampedVolume());
 				p.queue(tracks[0]);
 				incrementPlayCount(tracks[0].getName());
@@ -174,6 +181,10 @@ public class DingoSoundByte extends AbstractOperation{
 		else{
 			message.getChannel().sendMessage("I don't see a file containing '"+ trackName + "' here...");
 		}
+	}
+	
+	public File[] searchForFile(String trackName) {
+		return new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
 	}
 	
 	@Override

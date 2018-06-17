@@ -41,14 +41,8 @@ public class  LanguageEngine{
 	List<DingoOperation> actionQueue = new ArrayList<>();
 	
 	public void parse(IMessage message){
-		String[] validUsers = {"Giantdad", "giantdad"};
-		List<String> admin = Arrays.asList(validUsers);
 		String content = message.getContent().trim();
 		String[]  input = content.split(" ");
-		String authorName = message.getAuthor().getName();
-		
-		//TODO: allow anyone to restart dingo-bot
-		List<IRole> authorRoles = message.getAuthor().getRolesForGuild(message.getGuild());
 		
 		if(message.getContent().split("[ ]+")[1].toLowerCase().equals("please")){
 			AdminPowers power = new AdminPowers(message);
