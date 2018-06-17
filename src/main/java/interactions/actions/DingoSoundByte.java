@@ -140,7 +140,10 @@ public class DingoSoundByte extends AbstractOperation{
 		}
 		try{
 			System.out.println("joining channel");
-			channel.join();
+			// Maybe we need to check if we're connected before stopping trying to join
+			while(!channel.isConnected()) {
+				channel.join();
+			}
 		}
 		catch(Exception e){
 			System.out.println("failed to join channel");
