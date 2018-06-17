@@ -8,8 +8,8 @@ import sx.blah.discord.handle.obj.Permissions;
 
 public class Restart extends AbstractOperation{
 	
-	private final static String COMMANDS = "source ~/.bashrc bash ~/dingo-start-stop.sh";
-	private final static String[] fullBashCommand = {"/bin/bash", "-c", COMMANDS};
+	private final static String COMMANDS = "source ~/.bashrc; bash ~/dingo-start-stop.sh";
+	private final static String[] fullBashCommand = {"/bin/bash", "-i", "-c", COMMANDS};
 	public Restart(IMessage message) {
 		super(message);
 	}
@@ -30,7 +30,12 @@ public class Restart extends AbstractOperation{
 		Process process;
 		try {
 			message.reply("Alright, fine. I'll try to restart myself...");
-			message.reply("this is the command: " + fullBashCommand);
+			message.reply("this is the command: ");
+			String command = "";
+			for(String str : fullBashCommand) {
+				command += str + " ";
+			}
+			message.reply(command);
 			process = new ProcessBuilder().command(fullBashCommand).start();
 		}
 		catch(Exception e) {
