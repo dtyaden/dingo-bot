@@ -1,10 +1,10 @@
 package listeners;
 
-import java.util.HashMap;
+import java.util.Collection;
 
 import engine.DingoEngine;
-import engine.SpamThread;
-import sx.blah.discord.api.IDiscordClient;
+import interactions.actions.SpamThread;
+import interactions.actions.responses.DeleteMessageResponse;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MentionEvent;
 import sx.blah.discord.handle.obj.IMessage;
@@ -17,7 +17,16 @@ public class MentionListener implements IListener<MentionEvent>{
 	public MentionListener(long clientID){
 		this.clientID = clientID;
 	}
-	
+
+	private boolean areMentionsOnlyAtDingoBot(Collection<IUser> mentions){
+	    for(IUser user : mentions){
+	        if(!user.equals(DingoEngine.getBot().getOurUser())){
+	            return false;
+            }
+        }
+        return true;
+    }
+
 	@Override
 	public void handle(MentionEvent event) {
 		IMessage message = event.getMessage();
@@ -34,6 +43,9 @@ public class MentionListener implements IListener<MentionEvent>{
 			}
 			DingoEngine.languageEngine.parse(event.getMessage());
 		}
+		if(areMentionsOnlyAtDingoBot(message.getMentions())){
+            new DeleteMessageResponse(message).run();
+        }
 	}
 	
 }

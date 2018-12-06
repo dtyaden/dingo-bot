@@ -2,3 +2,14 @@
 **/modules
 **/build
 **/.gradle
+**/.idea
+*.zip
+/gradlew
+out
+output
+quickstart
+gradle/
+old.gradle
+*.classpath
+*.project
+*.settings

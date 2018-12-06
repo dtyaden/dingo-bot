@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import interactions.actions.DownloadAction;
+import interactions.actions.SendMessageAction;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 

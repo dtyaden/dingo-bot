@@ -3,6 +3,7 @@ package engine;
 import java.io.File;
 import java.util.HashMap;
 
+import interactions.actions.SpamThread;
 import listeners.MentionListener;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -18,8 +19,7 @@ public class DingoEngine {
 	private static IDiscordClient dingo;
 	private static long timeout = 30000;
 	public static final String FILE_PLAY_COUNT_lOCATION = "src/resources/PLAYCOUNT";
-	public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
-	
+
 	private static String runningID;
 	
 	public void run(String clientID){

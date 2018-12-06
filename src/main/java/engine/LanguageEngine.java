@@ -2,22 +2,14 @@ package engine;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import interactions.actions.*;
 import org.apache.commons.lang3.StringUtils;
 
-import interactions.actions.DingoAction;
-import interactions.actions.DingoOperation;
-import interactions.actions.DingoSoundByte;
-import interactions.actions.MemeMe;
-import interactions.actions.ODouls;
-import interactions.actions.Stop;
-import interactions.actions.Volume;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 public class  LanguageEngine{
@@ -36,6 +28,7 @@ public class  LanguageEngine{
 		commands.put("volume", (message) -> new Volume(message));
 		commands.put("odouls", (message) -> new ODouls(message));
 		commands.put("restart", (message) -> new Restart(message));
+		commands.put("search", (message) -> new ListTracks(message));
 	}
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();

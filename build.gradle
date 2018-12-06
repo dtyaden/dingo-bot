@@ -40,8 +40,11 @@ repositories {
 }
 
 dependencies {
-	// https://mvnrepository.com/artifact/com.discord4j/Discord4J
+		// https://mvnrepository.com/artifact/com.discord4j/Discord4J
 	compile group: 'com.discord4j', name: 'Discord4J', version: '2.10.1'
-	compile 'junit:junit:4.12'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-text
+	compile group: 'org.apache.commons', name: 'commons-text', version: '1.4'
 
+    compile 'junit:junit:4.12'
 }

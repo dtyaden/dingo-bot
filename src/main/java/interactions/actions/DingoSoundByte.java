@@ -8,40 +8,35 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
+import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import engine.DingoBotUtil;
 import engine.DingoEngine;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.audio.IAudioManager;
-import sx.blah.discord.handle.audio.IAudioProcessor;
-import sx.blah.discord.handle.audio.impl.DefaultProcessor;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.audio.AudioPlayer;
-import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
+
 
 public class DingoSoundByte extends AbstractOperation{
 	
 	public DingoSoundByte(IMessage message) {
 		super(message);
 	}
-	
+
+	private DingoBotUtil util = new DingoBotUtil();
+
 	@Override
 	public void run() {
 		IDiscordClient dingo = DingoEngine.getBot();
@@ -128,8 +123,7 @@ public class DingoSoundByte extends AbstractOperation{
 	
 	public void playAudioFile(IMessage message, IVoiceChannel channel, int startingPosition){
 		String trackName = getTrackName(message, startingPosition).toLowerCase();
-		File soundDir = new File(DingoEngine.AUDIO_DIRECTORY);
-		
+		File soundDir = new File(DingoBotUtil.AUDIO_DIRECTORY);
 		if(!soundDir.exists()){
 			try {
 				soundDir.createNewFile();
@@ -149,23 +143,24 @@ public class DingoSoundByte extends AbstractOperation{
 			System.out.println("failed to join channel");
 			e.printStackTrace();
 		}
-		File[] tracks = new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
-		if(tracks!= null && tracks.length > 0){
+		
+		File track = searchForFile(trackName);
+		if(track!= null){
 			try {
-				System.out.println(tracks[0].getName() + " playing");
+				System.out.println(track.getName() + " playing");
 				AudioPlayer p = getAudioPlayer(message.getGuild());
 				if (p.getCurrentTrack() != null) {
 					System.out.println("track playing queueing pan");
 					p.clear();
-					File pan = searchForFile("pan")[0];
-					if(!pan.equals(tracks[0])) {
+					File pan = searchForFile("pan");
+					if(!pan.equals(track)) {
 						p.queue(pan);
 					}
 				}
 				p.setVolume(Volume.getClampedVolume());
-				p.queue(tracks[0]);
-				incrementPlayCount(tracks[0].getName());
-				if(StringUtils.equals(tracks[0].getName(), "memelord.wav")){
+				p.queue(track);
+				incrementPlayCount(track.getName());
+				if(StringUtils.equals(track.getName(), "memelord.wav")){
 					message.reply("me");
 				}
 			} catch (DiscordException e){
@@ -183,8 +178,30 @@ public class DingoSoundByte extends AbstractOperation{
 		}
 	}
 	
-	public File[] searchForFile(String trackName) {
-		return new File(DingoEngine.AUDIO_DIRECTORY).listFiles((file) -> file.getName().toLowerCase().contains(trackName));
+	public File searchForFile(String trackName) {
+		Character[] characters = ArrayUtils.toObject(trackName.toCharArray());
+		List<Character> charList = Arrays.asList(characters);
+		String[] arrayOfStrings = {"this", "is", "an", "array", "of", "strings"};
+		List<String> list = Arrays.asList(arrayOfStrings);
+		HashSet<Character> trackCharacters = new HashSet<>(charList);
+		List<File> tracks = util.searchSoundFiles(trackName);
+		File closestTrack = new File("");
+		int closestDistance = 999;
+		if(tracks.size() != 0) {
+			System.out.println("found some tracks: " + Arrays.asList(tracks));
+			for(File f : tracks) {
+				int distance = LevenshteinDistance.getDefaultInstance().apply(f.getName(), closestTrack.getName());
+				if(distance < closestDistance) {
+					System.out.println("found closeer track: " + f.getName()  + " distance from  " + trackName + " is "+ distance);
+					closestDistance = distance;
+					closestTrack = f;
+				}
+			}
+		}
+		else {
+			return null;
+		}
+		return closestTrack;
 	}
 	
 	@Override
@@ -217,9 +234,4 @@ public class DingoSoundByte extends AbstractOperation{
 		}
 		return fileName.toString().trim();
 	}
-	
-	public void playSound(IVoiceChannel channel, String sound){
-		
-	}
-	
 }
