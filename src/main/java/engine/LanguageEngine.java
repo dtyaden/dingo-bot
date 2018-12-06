@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import interactions.actions.*;
+import interactions.actions.music.DingoSoundByte;
+import interactions.actions.music.QueueTrackAction;
 import org.apache.commons.lang3.StringUtils;
 
 import sx.blah.discord.handle.obj.IChannel;
@@ -29,6 +31,7 @@ public class  LanguageEngine{
 		commands.put("odouls", (message) -> new ODouls(message));
 		commands.put("restart", (message) -> new Restart(message));
 		commands.put("search", (message) -> new ListTracks(message));
+		commands.put("queue", (message) -> new QueueTrackAction(message));
 	}
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();
