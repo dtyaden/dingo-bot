@@ -32,7 +32,6 @@ public class MentionListener implements IListener<MentionEvent>{
 		IMessage message = event.getMessage();
         if(mentionsOnlyDingoBot(message)){
             new Thread(new DeleteMessageResponse(message)).start();
-            new DeleteMessageResponse(message).run();
         }
         else{
             // Don't handle mentions that include other users than dingo bot.
