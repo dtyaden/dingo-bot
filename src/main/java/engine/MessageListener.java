@@ -60,6 +60,9 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 				if(!downloaded){
 					new SendMessageAction().sendMessage(DingoEngine.getBot(), event.getAuthor(), "Your upload failed, probably because David is bad at programming.");
 				}
+				else{
+
+				}
 			});
 		}
 		else{
@@ -134,13 +137,12 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 				try {
 					System.out.println("running command: " + fullCommandList);
 					process = new ProcessBuilder().command(fullCommandList).start();
-					System.out.println("process started");
 					System.out.println(process.waitFor());
-					System.out.println("done waiting");
-					System.out.println("error stream: ");
 					System.out.println(IOUtils.toString(process.getErrorStream(), "UTF-8"));
 					System.out.println("input stream (output from process): ");
 					System.out.println(IOUtils.toString(process.getInputStream(), "UTF-8"));
+                    new SendMessageAction().sendMessage(DingoEngine.getBot(), event.getMessage().getAuthor(), "Upload of "
+                            + entry.getKey() + "should be done by now?");
 				} catch (IOException e) {
 					System.out.println("IOEXCEPTION: " + e.getMessage());
 					e.printStackTrace();

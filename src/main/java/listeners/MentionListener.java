@@ -1,14 +1,11 @@
 package listeners;
 
-import java.util.Collection;
-
 import engine.DingoEngine;
 import interactions.actions.SpamThread;
 import interactions.actions.responses.DeleteMessageResponse;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MentionEvent;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class MentionListener implements IListener<MentionEvent>{
 	private long clientID;
@@ -18,18 +15,29 @@ public class MentionListener implements IListener<MentionEvent>{
 		this.clientID = clientID;
 	}
 
-	private boolean areMentionsOnlyAtDingoBot(Collection<IUser> mentions){
-	    for(IUser user : mentions){
-	        if(!user.equals(DingoEngine.getBot().getOurUser())){
-	            return false;
-            }
-        }
-        return true;
+	private boolean mentionsHereOrEveryone(IMessage message){
+	    return message.mentionsEveryone() || message.mentionsHere();
+    }
+
+    private boolean mentionsMoreThanOnePerson(IMessage message){
+	    return message.getMentions().size() > 1;
+    }
+
+    private boolean mentionsOnlyDingoBot(IMessage message){
+        return !mentionsHereOrEveryone(message) && !mentionsMoreThanOnePerson(message);
     }
 
 	@Override
 	public void handle(MentionEvent event) {
 		IMessage message = event.getMessage();
+        if(mentionsOnlyDingoBot(message)){
+            new Thread(new DeleteMessageResponse(message)).start();
+            new DeleteMessageResponse(message).run();
+        }
+        else{
+            // Don't handle mentions that include other users than dingo bot.
+            return;
+        }
 		System.out.println("RECEIVED MENTION OF: "+message);
 		message.getAuthor();
 		boolean spamming = SpamThread.checkUser(event.getAuthor());
@@ -43,9 +51,6 @@ public class MentionListener implements IListener<MentionEvent>{
 			}
 			DingoEngine.languageEngine.parse(event.getMessage());
 		}
-		if(areMentionsOnlyAtDingoBot(message.getMentions())){
-            new DeleteMessageResponse(message).run();
-        }
 	}
 	
 }
