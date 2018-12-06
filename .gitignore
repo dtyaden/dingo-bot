@@ -13,3 +13,4 @@ old.gradle
 *.classpath
 *.project
 *.settings
+*src/resources/
