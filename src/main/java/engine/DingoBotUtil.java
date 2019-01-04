@@ -39,6 +39,10 @@ public class DingoBotUtil {
         return null;
     }
 
+    public List<File> searchSoundFiles(String searchString){
+        return searchSoundFiles(searchString.split(" "));
+    }
+
     public List<File> searchSoundFiles(String... searchString) {
         return findFilesMultipleWords(AUDIO_DIRECTORY, Arrays.asList(searchString));
     }
