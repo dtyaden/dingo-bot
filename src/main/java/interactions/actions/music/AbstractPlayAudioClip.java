@@ -7,6 +7,7 @@ import interactions.actions.Volume;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
+import services.DingoFileService;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -25,9 +26,11 @@ import java.util.List;
 public abstract class AbstractPlayAudioClip extends AbstractOperation {
 
     protected DingoBotUtil util = new DingoBotUtil();
+    private DingoFileService dingoFileService;
 
     public AbstractPlayAudioClip(IMessage message) {
         super(message);
+        dingoFileService = new DingoFileService();
     }
 
     public void run(){
@@ -67,7 +70,7 @@ public abstract class AbstractPlayAudioClip extends AbstractOperation {
 
     public void playAudioFile(IMessage message, IVoiceChannel channel, int startingPosition){
         String trackName = getTrackName(message, startingPosition).toLowerCase();
-        File soundDir = new File(DingoBotUtil.AUDIO_DIRECTORY);
+        File soundDir = new File(DingoFileService.AUDIO_DIRECTORY);
         if(!soundDir.exists()){
             try {
                 soundDir.createNewFile();
@@ -191,7 +194,7 @@ public abstract class AbstractPlayAudioClip extends AbstractOperation {
         String[] arrayOfStrings = {"this", "is", "an", "array", "of", "strings"};
         List<String> list = Arrays.asList(arrayOfStrings);
         HashSet<Character> trackCharacters = new HashSet<>(charList);
-        List<File> tracks = util.searchSoundFiles(trackName);
+        List<File> tracks = dingoFileService.searchSoundFiles(trackName);
         File closestTrack = new File("");
         int closestDistance = 999;
         if(tracks.size() != 0) {

@@ -3,9 +3,9 @@ package interactions.actions;
 import java.io.File;
 import java.util.*;
 
-import engine.DingoBotUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import services.DingoFileService;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -15,7 +15,7 @@ public class ListTracks extends AbstractOperation{
 		super(message);
 	}
 
-	DingoBotUtil util = new DingoBotUtil();
+	DingoFileService dingoFileService = new DingoFileService();
 
     public static int maxMessageLength = 50;
 	@Override
@@ -23,8 +23,8 @@ public class ListTracks extends AbstractOperation{
         StringBuilder trackList = new StringBuilder();
         trackList.append("Here are my current meme clips:\n");
         IChannel messageChannel = message.getAuthor().getOrCreatePMChannel();
-        List<String> searchArgs = util.getMessageArguments(message);
-        List<File> tracks = util.searchSoundFiles(searchArgs);
+        List<String> searchArgs = dingoFileService.getMessageArguments(message);
+        List<File> tracks = dingoFileService.searchSoundFiles(searchArgs);
         Collections.sort(tracks, new Comparator<File>() {
             @Override
             public int compare(File arg0, File arg1) {

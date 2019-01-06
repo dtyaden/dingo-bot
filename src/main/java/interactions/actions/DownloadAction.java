@@ -7,15 +7,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 
-import engine.DingoBotUtil;
 import engine.DingoEngine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import services.DingoFileService;
 
 public class DownloadAction {
 	
 	public static HashMap<String, String> extensions = new HashMap<>();
-	public static final String SOUND_DIRECTORY = DingoBotUtil.AUDIO_DIRECTORY;
+	public static final String SOUND_DIRECTORY = DingoFileService.AUDIO_DIRECTORY;
 	
 	static{
 		extensions.put("mp4", SOUND_DIRECTORY);
@@ -42,7 +42,7 @@ public class DownloadAction {
 				URLConnection conn = attachment.openConnection();
 				conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36");
 				conn.connect();
-				String fullPath = DingoBotUtil.AUDIO_DIRECTORY + fileName;
+				String fullPath = DingoFileService.AUDIO_DIRECTORY + fileName;
 				System.out.println("Downloading file to " + fullPath);
 				FileUtils.copyInputStreamToFile(conn.getInputStream(), new File(fullPath));
 				return true;

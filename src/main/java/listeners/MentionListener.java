@@ -9,8 +9,7 @@ import sx.blah.discord.handle.obj.IMessage;
 
 public class MentionListener implements IListener<MentionEvent>{
 	private long clientID;
-	
-	
+
 	public MentionListener(long clientID){
 		this.clientID = clientID;
 	}
