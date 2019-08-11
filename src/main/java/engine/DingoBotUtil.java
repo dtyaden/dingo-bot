@@ -1,20 +1,27 @@
 package engine;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.impl.obj.Message;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.util.MessageBuilder;
+import sx.blah.discord.util.RequestBuffer;
 
 public class DingoBotUtil {
 
 
     public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
+    public static final String URLREGEX = "(?:(?:https?|ftp):\\/\\/|\\b(?:[a-z\\d]+\\.))(?:(?:[^\\s()<>]+|\\((?:[^\\s()<>]+|(?:\\([^\\s()<>]+\\)))?\\))+(?:\\((?:[^\\s()<>]+|(?:\\(?:[^\\s()<>]+\\)))?\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))?";
 
     public static IVoiceChannel findUserVoiceChannel(IUser user, IDiscordClient bot) {
         long timeout = DingoEngine.getTimeout();
@@ -82,5 +89,30 @@ public class DingoBotUtil {
     public List<File> findFilesMultipleWords(String directory, List<String> keywords){
         List<File> files = Arrays.asList(new File(directory).listFiles());
         return matchFilenames(files, keywords);
+    }
+
+    public MessageBuilder getMessageBuilder(){
+        return new MessageBuilder(DingoEngine.getBot());
+    }
+
+    public IMessage requestMessageSend(MessageBuilder message){
+        List<IMessage> sentMessageContainer = new ArrayList<>();
+        RequestBuffer.request(() -> {
+            sentMessageContainer.add(message.send());
+        });
+        return sentMessageContainer.get(0);
+    }
+
+    public boolean isMessageContentUrl(String messageContent){
+        return messageContent.matches(URLREGEX);
+    }
+
+    public URL getUrl(String urlString){
+        try {
+            URL url = new URL(urlString);
+            return url;
+        } catch (MalformedURLException e) {
+        }
+        return null;
     }
 }

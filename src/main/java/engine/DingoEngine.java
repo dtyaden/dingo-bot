@@ -1,13 +1,13 @@
 package engine;
 
 import java.io.File;
-import java.util.HashMap;
 
 import interactions.actions.SpamThread;
 import listeners.MentionListener;
+import listeners.TrackFinishListener;
+import listeners.TrackStartListener;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.Image;
 
@@ -28,6 +28,8 @@ public class DingoEngine {
 		DingoEngine.dingo = dingo;
 		
 		dingo.getDispatcher().registerListener(new MentionListener(Long.parseLong(dingo.getApplicationClientID())));
+		dingo.getDispatcher().registerListener(new TrackStartListener(Long.parseLong(dingo.getApplicationClientID())));
+		dingo.getDispatcher().registerListener(new TrackFinishListener(Long.parseLong(dingo.getApplicationClientID())));
 		dingo.getDispatcher().registerListener(new MessageListener());
 		
 		if(dingo.isLoggedIn()){

@@ -4,6 +4,7 @@ import engine.DingoBotUtil;
 import engine.DingoEngine;
 import interactions.actions.AbstractOperation;
 import interactions.actions.Volume;
+import interactions.actions.YoutubeStreamAction;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -17,6 +18,7 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,16 +50,27 @@ public abstract class AbstractPlayAudioClip extends AbstractOperation {
             startingPosition = 2;
         }
         // Fix checking if it's a url and finding the file name if it's not
-        if(messageContent[startingPosition].startsWith("http")){
-            playURL(message, channel);
+        if(util.isMessageContentUrl(messageContent[startingPosition])){
+            new YoutubeStreamAction(message).run();
         }
         else{
             playAudioFile(message, channel, startingPosition);
         }
     }
 
-    public void playURL(IMessage message, IVoiceChannel channel){
-        channel.sendMessage("I don't understand what a fucking url is");
+    public void playURL(IMessage message, IVoiceChannel channel, String stringUrl){
+        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+        URL targetUrl = util.getUrl(stringUrl);
+        if (targetUrl == null){
+            return;
+        }
+        try {
+            player.queue(targetUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
         return;
     }
 
@@ -97,7 +110,7 @@ public abstract class AbstractPlayAudioClip extends AbstractOperation {
                 incrementPlayCount(track.getName());
                 if(StringUtils.equals(track.getName(), "memelord.wav")){
                     message.reply("me");
-                }
+            }
             } catch (DiscordException e){
                 e.printStackTrace();
             }
@@ -199,7 +212,7 @@ public abstract class AbstractPlayAudioClip extends AbstractOperation {
             for(File f : tracks) {
                 int distance = LevenshteinDistance.getDefaultInstance().apply(f.getName(), closestTrack.getName());
                 if(distance < closestDistance) {
-                    System.out.println("found closeer track: " + f.getName()  + " distance from  " + trackName + " is "+ distance);
+                    System.out.println("found closer track: " + f.getName()  + " distance from  " + trackName + " is "+ distance);
                     closestDistance = distance;
                     closestTrack = f;
                 }

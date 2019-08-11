@@ -14,3 +14,4 @@ old.gradle
 *.project
 *.settings
 *src/resources/
+*web

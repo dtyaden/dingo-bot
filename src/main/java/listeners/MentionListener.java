@@ -7,12 +7,10 @@ import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MentionEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
-public class MentionListener implements IListener<MentionEvent>{
-	private long clientID;
-	
-	
+public class MentionListener extends AbstractDingoListener<MentionEvent>{
+
 	public MentionListener(long clientID){
-		this.clientID = clientID;
+		super(clientID);
 	}
 
 	private boolean mentionsHereOrEveryone(IMessage message){

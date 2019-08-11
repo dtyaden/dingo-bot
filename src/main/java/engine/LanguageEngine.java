@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import interactions.actions.*;
-import interactions.actions.music.DingoSoundByte;
-import interactions.actions.music.QueueTrackAction;
+import interactions.actions.music.*;
 import org.apache.commons.lang3.StringUtils;
 
 import sx.blah.discord.handle.obj.IChannel;
@@ -19,7 +18,13 @@ public class  LanguageEngine{
 	InputStream input;
 	public static final String[] BAD_WORDS = {"fuckboi","fidgetspinner", "fidget spinner", "fidget-spinner",
 			"marco rubio"};
-	
+
+	private static void registerCommand(DingoAction action, String...commandKeys){
+		for (String command : commandKeys){
+			commands.put(command, action);
+		}
+	}
+
 	static{
 		commands.put("mememe", (message)-> new MemeMe(message));
 		commands.put("play", (message) -> new DingoSoundByte(message));
@@ -32,6 +37,9 @@ public class  LanguageEngine{
 		commands.put("restart", (message) -> new Restart(message));
 		commands.put("search", (message) -> new ListTracks(message));
 		commands.put("queue", (message) -> new QueueTrackAction(message));
+		registerCommand((message) -> new NowPlaying(message), "trackinfo", "track", "nowplaying", "shazam", "what this", "what_this");
+		registerCommand((message -> new NextTrackAction(message)), "skip", "next");
+		registerCommand((message -> new PauseMusicAction(message)), "pause");
 	}
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();
@@ -55,6 +63,7 @@ public class  LanguageEngine{
 			String word = input[i].toLowerCase();
 			DingoAction command = commands.get(word);
 			if(command != null){
+				Thread operationThread = new Thread();
 				command.getOperation(message).run();
 				return;
 			}
