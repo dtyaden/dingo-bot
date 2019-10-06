@@ -44,7 +44,7 @@ public class YoutubeStreamAction extends AbstractOperation{
                 if(youtubeDLOutput == null){
                     return;
                 }
-                message.getAuthor().get
+                message.getAuthor()
 
                 AudioPlayer.getAudioPlayerForGuild(message.getGuild()).queue(youtubeDLOutput);
             } catch (IOException e) {
