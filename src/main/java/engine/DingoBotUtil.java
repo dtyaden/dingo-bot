@@ -10,7 +10,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.obj.Message;
+import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
@@ -21,7 +23,10 @@ public class DingoBotUtil {
 
 
     public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
+
+    // dont think this urlregex works...
     public static final String URLREGEX = "(?:(?:https?|ftp):\\/\\/|\\b(?:[a-z\\d]+\\.))(?:(?:[^\\s()<>]+|\\((?:[^\\s()<>]+|(?:\\([^\\s()<>]+\\)))?\\))+(?:\\((?:[^\\s()<>]+|(?:\\(?:[^\\s()<>]+\\)))?\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))?";
+
 
     public static IVoiceChannel findUserVoiceChannel(IUser user, IDiscordClient bot) {
         long timeout = DingoEngine.getTimeout();
@@ -114,5 +119,16 @@ public class DingoBotUtil {
         } catch (MalformedURLException e) {
         }
         return null;
+    }
+
+    public void sendErrorMessage(MessageReceivedEvent event) {
+        sendErrorMessage(event.getMessage());
+    }
+
+    public void sendErrorMessage(IMessage message){
+        message.reply("format for sending me a link is: \"{link}\" \"-name\" (name is optional btw) \"{the name of the file you want otherwise it will default to the youtube title}\""
+                + "\nYou can also switch the position of the name and link around and it should work. You just need to specify the name with '-name' that's the important part really.\n"
+                + "You can also send as many links as you want this way too. Also, don't abuse this power please...");
+        throw new IllegalArgumentException();
     }
 }

@@ -4,7 +4,6 @@ import engine.DingoBotUtil;
 import engine.DingoEngine;
 import interactions.actions.AbstractOperation;
 import interactions.actions.Volume;
-import interactions.actions.YoutubeStreamAction;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -51,14 +50,14 @@ public abstract class AbstractPlayAudioClip extends AbstractOperation {
         }
         // Fix checking if it's a url and finding the file name if it's not
         if(util.isMessageContentUrl(messageContent[startingPosition])){
-            new YoutubeStreamAction(message).run();
+            playURL(message, messageContent[startingPosition]);
         }
         else{
             playAudioFile(message, channel, startingPosition);
         }
     }
 
-    public void playURL(IMessage message, IVoiceChannel channel, String stringUrl){
+    public void playURL(IMessage message, String stringUrl){
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
         URL targetUrl = util.getUrl(stringUrl);
         if (targetUrl == null){

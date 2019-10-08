@@ -1,9 +1,7 @@
 package engine;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -12,46 +10,17 @@ import java.util.Set;
 import interactions.actions.DownloadAction;
 import interactions.actions.DownloadThread;
 import interactions.actions.SendMessageAction;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IMessage;
 
 public class MessageListener implements IListener<MessageReceivedEvent> {
 	String previousID;
-	private static final List<String> YOUTUBE_DL_STRING = new ArrayList<String>();
-	static{
-		YOUTUBE_DL_STRING.add("/bin/bash");
-		YOUTUBE_DL_STRING.add("-i");
-		YOUTUBE_DL_STRING.add("-c");
-//		YOUTUBE_DL_STRING.add("~/youtube-dl.sh");
-	}
-	public static final String YOUTUBE_DL_COMMAND = "source ~/.bashrc; ~/youtube-dl.sh $dingoSoundDir";
-	private static final String PLEASE_NO_REACTION = "<a:pleaseno:441795866404323338>";
-	private static void sendErrorMessage(MessageReceivedEvent event) {
-		ReactionEmoji.of(PLEASE_NO_REACTION);
-		event.getMessage().reply("format for sending me a link is: \"{link}\" \"-name\" (name is optional btw) \"{the name of the file you want otherwise it will default to the youtube title}\""
-				+ "\nYou can also switch the position of the name and link around and it should work. You just need to specify the name with '-name' that's the important part really.\n"
-				+ "You can also send as many links as you want this way too. Also, don't abuse this power please...");
-		throw new IllegalArgumentException();
-	}
 
-	@Override
-	public void handle(MessageReceivedEvent event) {
-		String content = event.getMessage().getContent();
-		System.out.println("DIRECT MESSAGE CONTENT: " + content);
-		String ID = event.getMessage().getStringID();
-		if(StringUtils.equals(ID, previousID)){
-			return;
-		}
-		if(!event.getChannel().isPrivate()){
-			return;
-		}
-		previousID = ID;
-		List<IMessage.Attachment> attachments = event.getMessage().getAttachments();
+	public void downloadAttachments(IMessage message){
+		List<IMessage.Attachment> attachments = message.getAttachments();
 		if(attachments.size() > 0){
 			System.out.println("RECEIVING ATTACHMENTS: " + attachments);
 			attachments.forEach(attachment -> {
@@ -59,7 +28,7 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 				String url = attachment.getUrl();
 				boolean downloaded = new DownloadAction().download(url);
 				if(!downloaded){
-					new SendMessageAction().sendMessage(DingoEngine.getBot(), event.getAuthor(), "Your upload failed, probably because David is bad at programming.");
+					new SendMessageAction().sendMessage(DingoEngine.getBot(), message.getAuthor(), "Your upload failed, probably because David is bad at programming.");
 				}
 				else{
 
@@ -67,26 +36,28 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 			});
 			return;
 		}
-		List<String> message = Arrays.asList(event.getMessage().toString().split(" "));
+	}
+
+	public HashMap<String, String> downloadURL(IMessage message){
 		// map of names -> URLs
 		HashMap<String, String> downloads = new HashMap<>();
-		System.out.println("checking if it's a link...");
-		for(int i = 0; i < message.size(); i++) {
+		List<String> messageContent = Arrays.asList(message.toString().split(" "));
+		for(int i = 0; i < messageContent.size(); i++) {
 			String name = "";
 			String link = "";
-			String currentPart = message.get(i);
+			String currentPart = messageContent.get(i);
 			if(currentPart.contains("youtube.com") || currentPart.contains("youtu.be")) {
 				link = currentPart;
 				try {
-					if(message.get(i + 1).equals("-name")) {
+					if(messageContent.get(i + 1).equals("-name")) {
 						try {
 							// name found, jump the iterator forward two positions so we don't try to parse it again.
-							name = message.get(i + 2);
+							name = messageContent.get(i + 2);
 							i +=2;
 						}
 						catch (IndexOutOfBoundsException e) {
 							// -name was given but no actual name was given.
-							sendErrorMessage(event);
+							sendErrorMessage(message);
 						}
 					}
 				}
@@ -96,22 +67,22 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 			}
 			else if(currentPart.contains("-name")) {
 				try {
-					name = message.get(i + 1);
+					name = messageContent.get(i + 1);
 					try {
-						link = message.get(i+2);
+						link = messageContent.get(i+2);
 						if(!link.contains("youtube.com") || !link.contains("youtu.be")) {
-							sendErrorMessage(event);
+							sendErrorMessage(message);
 							break;
 						}
 						// name and link found increase i + 2
 						i += 2;
 					}
 					catch(IndexOutOfBoundsException e) {
-						sendErrorMessage(event);
+						sendErrorMessage(message);
 					}
 				}
 				catch(IndexOutOfBoundsException e) {
-					sendErrorMessage(event);
+					sendErrorMessage(message);
 				}
 			}
 			if(StringUtils.isNotBlank(link)) {
@@ -120,12 +91,29 @@ public class MessageListener implements IListener<MessageReceivedEvent> {
 				downloads.put(link, name);
 			}
 		}
-		if(downloads.isEmpty()) {
-			event.getMessage().reply("what are you trying to do with me?!");
+		return downloads;
+	}
+
+	@Override
+	public void handle(MessageReceivedEvent event) {
+		IMessage message = event.getMessage();
+		String content = message.getContent();
+		System.out.println("DIRECT MESSAGE CONTENT: " + content);
+		String ID = message.getStringID();
+		if(StringUtils.equals(ID, previousID)){
 			return;
 		}
-		System.out.println("it looks like I found a/some link(s): " + downloads);
-		Set<Entry<String, String>> entries = downloads.entrySet();
+		if(!event.getChannel().isPrivate()){
+			return;
+		}
+		previousID = ID;
+
+		downloadAttachments(message);
+
+		System.out.println("checking if it's a link...");
+		HashMap<String, String> urls = downloadURL(message);
+		System.out.println("it looks like I found a/some link(s): " + urls);
+		Set<Entry<String, String>> entries = urls.entrySet();
 		for(Entry<String, String> entry : entries) {
 			System.out.println("1");
 			List<String> fullCommandList = new ArrayList<>();
