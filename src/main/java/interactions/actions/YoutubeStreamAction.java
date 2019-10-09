@@ -29,7 +29,7 @@ public class YoutubeStreamAction extends AbstractOperation{
 
     public AudioInputStream getStreamFromYoutube(URL youtubeURL) throws IOException, UnsupportedAudioFileException {
         ProcessBuilder processBuilder;
-        String fullCommand = "youtube-dl -o - \"" + youtubeURL.toString() + "\"";
+        String fullCommand = "youtube-dl -f 251 " + youtubeURL.toString() + "-o - ";
         processBuilder = new ProcessBuilder(fullCommand);
         Process youtubeDl = processBuilder.start();
         InputStream youtubeDLOutput = youtubeDl.getInputStream();
@@ -44,7 +44,6 @@ public class YoutubeStreamAction extends AbstractOperation{
                 if(youtubeDLOutput == null){
                     return;
                 }
-                message.getAuthor()
 
                 AudioPlayer.getAudioPlayerForGuild(message.getGuild()).queue(youtubeDLOutput);
             } catch (IOException e) {
