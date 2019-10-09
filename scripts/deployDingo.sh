@@ -1,6 +1,12 @@
 cd $dingo
+export target="david@104.154.183.123"
+export key=".ssh/google-dingo"
+echo $target
+echo $key
 gradle distZip
 cd ~/
-scp -i .ssh/Dingo.pem $dingo/Dingo-Bot-9000.1.1.zip ubuntu@13.58.240.68:
-ssh -i .ssh/Dingo.pem ubuntu@13.58.240.68 'bash installDingo.sh'
-ssh -i .ssh/Dingo.pem ubuntu@13.58.240.68 'bash dingo-start-stop.sh'
+if [ "$1" != "skip-copy" ]; then
+    scp -i "$key" $dingo/Dingo-Bot-9000.1.1.zip $target:
+fi 
+ssh -i "$key" "$target" 'bash install-Dingo.sh'
+ssh -i "$key" "$target" 'bash dingo-start-stop.sh'
