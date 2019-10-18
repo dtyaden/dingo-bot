@@ -13,10 +13,6 @@ import interactions.actions.Downloads.YoutubeDownloader;
 import interactions.actions.SendMessageAction;
 import org.apache.commons.lang3.StringUtils;
 
-import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-
 public class MessageListener implements IListener<MessageReceivedEvent> {
 	String previousID;
 

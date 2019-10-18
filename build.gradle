@@ -6,7 +6,7 @@ mainClassName = "engine.MainBot"
 
 distZip {
 	baseName = "Dingo-Bot-9000"
-	version = "1.1"
+	version = "2.0"
 	destinationDir = file(System.getProperty("user.dir"))
 	archiveName = "${baseName}.${version}.${extension}"
 	exclude 'src/resources/*'
@@ -26,7 +26,7 @@ distributions{
 jar {
     manifest {
         attributes 'Implementation-Title': 'Dingo-Bot-9000',
-                   'Implementation-Version': 1.1,
+                   'Implementation-Version': 2.0,
                    'Main-Class': 'engine.MainBot'
     }
 }
@@ -41,10 +41,12 @@ repositories {
 
 dependencies {
 		// https://mvnrepository.com/artifact/com.discord4j/Discord4J
-	compile group: 'com.discord4j', name: 'Discord4J', version: '2.10.1'
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-text
 	compile group: 'org.apache.commons', name: 'commons-text', version: '1.4'
 	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile 'junit:junit:4.12'
+	implementation 'com.discord4j:discord4j-core:3.0.10'
+	implementation 'com.discord4j:discord4j-common:3.0.10'
+	implementation 'com.discord4j:discord4j-voice:3.0.10'
 }

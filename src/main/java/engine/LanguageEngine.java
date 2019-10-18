@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import discord4j.core.object.entity.Message;
 import interactions.actions.*;
 import interactions.actions.music.*;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +45,7 @@ public class  LanguageEngine{
 	
 	List<DingoOperation> actionQueue = new ArrayList<>();
 	
-	public void parse(IMessage message){
+	public void parse(Message message){
 		String content = message.getContent().trim();
 		String[]  input = content.split(" ");
 		
