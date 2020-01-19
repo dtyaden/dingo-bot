@@ -1,19 +1,17 @@
 package listeners;
 
-import engine.DingoEngine;
-import interactions.actions.SpamThread;
-import interactions.actions.responses.DeleteMessageResponse;
-import sx.blah.discord.api.events.IListener;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MentionEvent;
-import sx.blah.discord.handle.obj.IMessage;
+import discord4j.core.object.entity.Message;
+import dingo.engine.DingoEngine;
+import dingo.interactions.actions.SpamThread;
+import dingo.interactions.actions.responses.DeleteMessageResponse;
 
-public class MentionListener extends AbstractDingoListener<MentionEvent>{
+public class MentionListener extends AbstractDingoListener {
 
 	public MentionListener(long clientID){
 		super(clientID);
 	}
 
-	private boolean mentionsHereOrEveryone(IMessage message){
+	private boolean mentionsHereOrEveryone(Message message){
 	    return message.mentionsEveryone() || message.mentionsHere();
     }
 

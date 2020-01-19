@@ -1,7 +1,7 @@
 package listeners;
 
-import engine.DingoEngine;
-import interactions.actions.music.AudioUtils;
+import dingo.engine.DingoEngine;
+import dingo.interactions.actions.music.AudioUtils;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.audio.events.TrackStartEvent;

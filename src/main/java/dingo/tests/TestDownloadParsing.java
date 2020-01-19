@@ -1,9 +1,7 @@
 package dingo.tests;
 
-import interactions.actions.Downloads.NameArgumentParser;
+import dingo.interactions.actions.Downloads.NameArgumentParser;
 import org.junit.Test;
-
-import javax.naming.Name;
 
 public class TestDownloadParsing {
 

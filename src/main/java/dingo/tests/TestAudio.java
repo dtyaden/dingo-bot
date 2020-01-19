@@ -2,7 +2,7 @@ package dingo.tests;
 
 import org.junit.Test;
 
-import engine.DingoEngine;
+import dingo.engine.DingoEngine;
 
 public class TestAudio {
 

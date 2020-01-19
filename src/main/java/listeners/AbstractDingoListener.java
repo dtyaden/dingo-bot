@@ -1,9 +1,7 @@
 package listeners;
 
-import sx.blah.discord.api.events.Event;
-import sx.blah.discord.api.events.IListener;
 
-public abstract class AbstractDingoListener<T extends Event> implements IListener<T> {
+public abstract class AbstractDingoListener {
 
     protected long clientID;
 
