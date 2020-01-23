@@ -16,8 +16,8 @@ public class TrackScheduler implements AudioLoadResultHandler {
 
     @Override
     public void trackLoaded(AudioTrack track) {
+        player.setPaused(false);
         player.playTrack(track);
-        this.
     }
 
     @Override
@@ -33,5 +33,9 @@ public class TrackScheduler implements AudioLoadResultHandler {
     @Override
     public void loadFailed(FriendlyException exception) {
 
+    }
+
+    public AudioPlayer getPlayer() {
+        return player;
     }
 }

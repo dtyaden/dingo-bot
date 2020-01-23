@@ -23,6 +23,7 @@ public class DingoPlayer extends AudioProvider {
         audioplayerManager = new DefaultAudioPlayerManager();
         audioplayerManager.getConfiguration().setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
         AudioSourceManagers.registerRemoteSources(audioplayerManager);
+        AudioSourceManagers.registerLocalSource(audioplayerManager);
         player = audioplayerManager.createPlayer();
         frame = new MutableAudioFrame();
         frame.setBuffer(getBuffer());
