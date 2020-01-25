@@ -1,12 +1,10 @@
 package dingov2.bot.commands;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import dingov2.bot.commands.actions.LogoutAction;
-import dingov2.bot.commands.actions.NavySeal;
-import dingov2.bot.commands.actions.PlayMusicCommand;
-import dingov2.bot.commands.actions.StopAction;
+import dingov2.bot.commands.actions.*;
 import dingov2.bot.music.TrackScheduler;
 import dingov2.discordapi.DingoClient;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 
@@ -33,6 +31,8 @@ public class Commands extends HashMap<String, DingoOperation> {
         registerCommand(event -> new LogoutAction(event, dingoClient), "logout");
         registerCommand(NavySeal::new, "pasta");
         registerCommand(event -> new StopAction(event, scheduler), "stop", "pause");
+        registerCommand(event -> new VolumeAction(event, scheduler), "volume");
+
     }
 
     public Commands(DingoClient dingoClient) {
@@ -40,6 +40,7 @@ public class Commands extends HashMap<String, DingoOperation> {
         this.dingoClient = dingoClient;
         loadCommands();
     }
+
 
 
 }

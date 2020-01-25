@@ -3,7 +3,7 @@ apply plugin: 'eclipse'
 apply plugin: 'application'
 apply plugin: 'idea'
 
-mainClassName = "engine.MainBot"
+mainClassName = "main.java.dingov2.Main"
 
 distZip {
 	baseName = "Dingo-Bot-9000"
