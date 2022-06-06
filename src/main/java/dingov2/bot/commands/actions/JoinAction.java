@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public class JoinAction extends AbstractMessageEventAction {
 
     private final DingoClient dingoClient;
@@ -21,7 +23,7 @@ public class JoinAction extends AbstractMessageEventAction {
     }
 
     @Override
-    public Mono<Void> execute() {
+    public Mono<Void> execute(List<String> args) {
 
         logger.debug("executing join");
 

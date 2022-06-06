@@ -6,6 +6,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 
 public class LogoutAction extends AbstractMessageEventAction {
     private final DingoClient dingoClient;
@@ -16,9 +17,10 @@ public class LogoutAction extends AbstractMessageEventAction {
     }
 
     @Override
-    public Mono<Void> execute() {
-        Mono<Void> command = Mono.justOrEmpty(event)
-                .doOnNext(event -> dingoClient.getClient().logout().block(Duration.ofSeconds(5))).then();
-        return command;
+    public Mono<Void> execute(List<String> args) {
+//        Mono<Void> command = Mono.justOrEmpty(event)
+//                .doOnNext(event -> dingoClient.getClient().logout().block(Duration.ofSeconds(5))).then();
+//        return command;
+        return Mono.empty();
     }
 }

@@ -27,9 +27,8 @@ public class DingoPlayer extends AudioProvider {
         player = audioplayerManager.createPlayer();
         frame = new MutableAudioFrame();
         frame.setBuffer(getBuffer());
-        this.player = player;
 
-        scheduler = new TrackScheduler(player);
+        scheduler = new TrackScheduler(player, audioplayerManager);
     }
 
     @Override

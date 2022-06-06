@@ -16,4 +16,4 @@ old.gradle
 *src/resources/
 *web
 logs/*
-
+tokens.txt

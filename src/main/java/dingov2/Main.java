@@ -1,8 +1,10 @@
 package dingov2;
 
         import dingov2.discordapi.DingoClient;
+        import discord4j.core.GatewayDiscordClient;
         import org.slf4j.Logger;
         import org.slf4j.LoggerFactory;
+        import reactor.core.publisher.Mono;
 
 public class Main {
 
@@ -16,6 +18,5 @@ public class Main {
         }
 
         DingoClient dingoClient = new DingoClient(args[0]);
-        dingoClient.login();
     }
 }

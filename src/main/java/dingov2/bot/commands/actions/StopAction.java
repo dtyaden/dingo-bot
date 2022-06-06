@@ -5,6 +5,8 @@ import dingov2.bot.music.TrackScheduler;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public class StopAction extends AbstractMessageEventAction {
 
     private final TrackScheduler scheduler;
@@ -15,7 +17,7 @@ public class StopAction extends AbstractMessageEventAction {
     }
 
     @Override
-    public Mono<Void> execute() {
+    public Mono<Void> execute(List<String> args) {
         return Mono.justOrEmpty(scheduler.getPlayer())
                 .doOnNext(player -> player.setPaused(true)).then();
     }
