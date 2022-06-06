@@ -3,13 +3,17 @@ apply plugin: 'eclipse'
 apply plugin: 'application'
 apply plugin: 'idea'
 
-mainClassName = "main.java.dingov2.Main"
+mainClassName = "dingov2.Main"
+
+application{
+	mainClass = "dingov2.Main"
+}
 
 distZip {
 	archiveBaseName = "Dingo-Bot-9000"
-	archiveVersion = "4.0"
-	destinationDirectory = file(System.getProperty("user.dir"))
-	archiveFileName = "${archiveBaseName}.${archiveVersion}.${archiveExtension}"
+//	archiveVersion = "4.0"
+	destinationDirectory = file("./")
+//	archiveFileName = "${archiveBaseName}.${archiveVersion}.${archiveExtension}"
 	exclude 'src/resources/*'
 }
 

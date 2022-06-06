@@ -7,13 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AudioTrackUtil {
 
-    public static final String AUDIO_DIRECTORY = "src/resources/sounds/";
+    public static String AUDIO_DIRECTORY = "src/resources/sounds/";
     public static Logger logger;
 
     public AudioTrackUtil(){
@@ -51,7 +52,12 @@ public class AudioTrackUtil {
     }
 
     public List<File> findFilesMultipleWords(String directory, List<String> keywords){
-        List<File> files = Arrays.asList(new File(directory).listFiles());
+        File resourceDir = new File(directory);
+        System.out.println("resource dir that we're using: " + resourceDir.getAbsolutePath());
+        if(resourceDir.listFiles() == null){
+            return new ArrayList<>();
+        }
+        List<File> files = Arrays.asList(resourceDir.listFiles());
         return matchFilenames(files, keywords);
     }
 
