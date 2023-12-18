@@ -1,5 +1,6 @@
-package dingov2.bot.music;
+package dingov2.bot.services.music;
 
+import dingov2.bot.services.downloads.YoutubeDownloaderService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -21,11 +22,12 @@ public class AudioTrackUtil {
         logger = LoggerFactory.getLogger(AudioTrackUtil.class);
     }
 
+
     public String getTrack(List<String> args){
         if (args.isEmpty()){
             return "";
         }
-        if (args.get(0).contains("youtube") || args.get(0).contains("youtu.be")){
+        if(YoutubeDownloaderService.IsYoutubeVideo(args.get(0))){
             return args.get(0);
         }
         logger.debug("didn't match youtube. making a file path instead");
@@ -90,4 +92,6 @@ public class AudioTrackUtil {
         }
         return closestTrack;
     }
+
+
 }

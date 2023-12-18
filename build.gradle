@@ -5,6 +5,10 @@ apply plugin: 'idea'
 
 mainClassName = "dingov2.Main"
 
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
 application{
 	mainClass = "dingov2.Main"
 }
@@ -54,15 +58,20 @@ dependencies {
 
 	implementation 'junit:junit:4.13.2'
 	// https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
-	implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.8.0-beta2'
+//	implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.8.0-beta2'
 
-	implementation 'ch.qos.logback:logback-classic:1.3.0-alpha4'
-	implementation 'com.discord4j:discord4j-core:3.2.2'
-	implementation 'com.discord4j:discord4j-common:3.2.2'
-	implementation 'com.discord4j:discord4j-voice:3.2.2'
+	implementation 'ch.qos.logback:logback-classic:1.4.14'
+	implementation 'com.discord4j:discord4j-core:3.2.6'
+	implementation 'com.discord4j:discord4j-common:3.2.6'
+	implementation 'com.discord4j:discord4j-voice:3.2.6'
 	implementation 'com.sedmelluq:lavaplayer:latest.integration'
+	implementation 'com.theokanning.openai-gpt3-java:api:latest.release'
+	implementation 'com.theokanning.openai-gpt3-java:service:latest.release'
+	implementation 'com.theokanning.openai-gpt3-java:client:latest.release'
 
 	implementation 'org.mongodb:mongo-java-driver:3.12.11'
 	implementation 'dev.morphia.morphia:core:1.6.1'
+	implementation 'com.github.sealedtx:java-youtube-downloader:latest.release'
+	implementation 'com.vdurmont:emoji-java:5.1.1'
 }
 

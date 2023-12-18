@@ -2,8 +2,8 @@ package dingov2.bot.commands.actions;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import dingov2.bot.commands.AbstractMessageEventAction;
-import dingov2.bot.music.AudioTrackUtil;
-import dingov2.bot.music.TrackScheduler;
+import dingov2.bot.services.music.AudioTrackUtil;
+import dingov2.bot.services.music.TrackScheduler;
 import dingov2.discordapi.DingoClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import org.slf4j.Logger;
