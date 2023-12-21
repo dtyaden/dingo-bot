@@ -2,6 +2,7 @@ package dingov2.bot.commands.actions;
 
 import dingov2.bot.commands.AbstractMessageEventAction;
 import dingov2.bot.services.DingoOpenAIQueryService;
+import dingov2.bot.services.OpenAIQueryService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,9 +13,9 @@ import java.util.List;
 public class QueryOpenAI extends AbstractMessageEventAction {
 
     private Logger logger;
-    private DingoOpenAIQueryService dingoOpenAIQueryService;
+    private OpenAIQueryService dingoOpenAIQueryService;
 
-    public QueryOpenAI(MessageCreateEvent event, DingoOpenAIQueryService service) {
+    public QueryOpenAI(MessageCreateEvent event, OpenAIQueryService service) {
         super(event);
         logger = LoggerFactory.getLogger(QueryOpenAI.class);
         this.dingoOpenAIQueryService = service;

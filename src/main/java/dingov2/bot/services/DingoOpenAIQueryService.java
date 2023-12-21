@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class DingoOpenAIQueryService {
+public class DingoOpenAIQueryService implements OpenAIQueryService {
 
     private String apiKey;
     public static final List<String> runningStates = Arrays.asList("queued", "in_progress");
@@ -41,6 +41,7 @@ public class DingoOpenAIQueryService {
                 .subscribe(logger2::info);
     }
 
+    @Override
     public Flux<String> sendChatMessage(String chatMessage){
         return Flux.create(emitter -> {
             logger.info("processing chat message");

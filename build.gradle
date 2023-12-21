@@ -73,5 +73,8 @@ dependencies {
 	implementation 'dev.morphia.morphia:core:1.6.1'
 	implementation 'com.github.sealedtx:java-youtube-downloader:latest.release'
 	implementation 'com.vdurmont:emoji-java:5.1.1'
+	implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.16.0'
+
 }
 
