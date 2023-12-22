@@ -12,8 +12,8 @@ public class VolumeAction extends AbstractMessageEventAction {
 
     private final TrackScheduler scheduler;
 
-    public VolumeAction(MessageCreateEvent event, TrackScheduler scheduler) {
-        super(event);
+    public VolumeAction(MessageCreateEvent event, List<String> arguments, TrackScheduler scheduler) {
+        super(event, arguments);
         this.scheduler = scheduler;
     }
 
@@ -22,8 +22,8 @@ public class VolumeAction extends AbstractMessageEventAction {
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
-        scheduler.getPlayer().setVolume(Integer.parseInt(args.get(0)));
+    public Mono<Void> execute() {
+        scheduler.getPlayer().setVolume(Integer.parseInt(arguments.get(0)));
         return Mono.empty();
     }
 }

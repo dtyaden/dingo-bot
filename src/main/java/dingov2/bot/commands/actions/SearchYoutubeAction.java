@@ -19,9 +19,8 @@ public class SearchYoutubeAction extends AbstractMessageEventAction {
     private YouTubeService dingoYouTubeService;
     private YoutubeSearchResultsContainer container;
 
-    public SearchYoutubeAction(MessageCreateEvent event, YouTubeService dingoYouTubeService, YoutubeSearchResultsContainer container){
-        super(event);
-
+    public SearchYoutubeAction(MessageCreateEvent event, List<String> arguments, YouTubeService dingoYouTubeService, YoutubeSearchResultsContainer container){
+        super(event, arguments);
         this.dingoYouTubeService = dingoYouTubeService;
         this.container = container;
     }
@@ -55,8 +54,8 @@ public class SearchYoutubeAction extends AbstractMessageEventAction {
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
-        String query = StringUtils.join(args);
+    public Mono<Void> execute() {
+        String query = StringUtils.join(arguments);
         return Mono.fromRunnable(() ->{
            List<SearchResult> results = dingoYouTubeService.queryYouTube(query);
 

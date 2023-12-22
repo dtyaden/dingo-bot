@@ -11,6 +11,8 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
+import discord4j.core.object.command.ApplicationCommand;
+import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.voice.VoiceConnectionRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

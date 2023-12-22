@@ -15,16 +15,16 @@ public class QueryOpenAI extends AbstractMessageEventAction {
     private Logger logger;
     private OpenAIQueryService dingoOpenAIQueryService;
 
-    public QueryOpenAI(MessageCreateEvent event, OpenAIQueryService service) {
-        super(event);
+    public QueryOpenAI(MessageCreateEvent event, List<String> arguments, OpenAIQueryService service) {
+        super(event, arguments);
         logger = LoggerFactory.getLogger(QueryOpenAI.class);
         this.dingoOpenAIQueryService = service;
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
+    public Mono<Void> execute() {
         logger.info("query command received");
-        dingoOpenAIQueryService.sendChatMessage(StringUtils.join(args))
+        dingoOpenAIQueryService.sendChatMessage(StringUtils.join(arguments))
                 .subscribe(message -> event
                         .getMessage()
                         .getChannel()

@@ -3,6 +3,7 @@ package dingov2.bot.commands;
         import discord4j.core.event.domain.message.MessageCreateEvent;
         import discord4j.core.object.entity.Message;
         import discord4j.core.object.entity.channel.MessageChannel;
+        import discord4j.discordjson.json.ApplicationCommandRequest;
         import reactor.core.publisher.Mono;
 
         import java.util.ArrayList;
@@ -11,9 +12,11 @@ package dingov2.bot.commands;
 public abstract class AbstractMessageEventAction implements DingoAction {
 
     protected MessageCreateEvent event;
-
-    public AbstractMessageEventAction(MessageCreateEvent event) {
+    protected List<String> arguments;
+    public ApplicationCommandRequest commandRequest;
+    public AbstractMessageEventAction(MessageCreateEvent event, List<String> arguments) {
         this.event = event;
+        this.arguments = arguments;
     }
 
     public Mono<MessageChannel> getMessageChannel() {

@@ -11,13 +11,13 @@ public class NextTrackAction extends AbstractMessageEventAction {
 
     private TrackScheduler scheduler;
 
-    public NextTrackAction(MessageCreateEvent event, TrackScheduler scheduler) {
-        super(event);
+    public NextTrackAction(MessageCreateEvent event, List<String> arguments, TrackScheduler scheduler) {
+        super(event, arguments);
         this.scheduler = scheduler;
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
+    public Mono<Void> execute() {
         scheduler.nextTrack();
         return Mono.empty();
     }

@@ -16,22 +16,22 @@ public class ListAction extends AbstractMessageEventAction {
 
     int maxFileCount = 25;
 
-    public ListAction(MessageCreateEvent event) {
-        super(event);
+    public ListAction(MessageCreateEvent event, List<String> arguments) {
+        super(event, arguments);
         util = new AudioTrackUtil();
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
-        List<String> files = util.searchForFileAllTerms(args);
+    public Mono<Void> execute() {
+        List<String> files = util.searchForFileAllTerms(arguments);
         if (files.isEmpty()) {
             event.getMessage().getChannel().subscribe(channel -> channel.createMessage("Could not find files matching "
-                    + StringUtils.join(args, " ")).subscribe());
+                    + StringUtils.join(arguments, " ")).subscribe());
             return Mono.empty();
         }
         StringBuilder fullSearchText = new StringBuilder();
         TextStringBuilder fileList = new TextStringBuilder();
-        args.forEach(arg -> fullSearchText.append(arg).append(" "));
+        arguments.forEach(arg -> fullSearchText.append(arg).append(" "));
         event.getMessage().getChannel().subscribe(channel -> {
             sendInitialMessage(channel, fullSearchText.toString());
             int fileCount = 0;

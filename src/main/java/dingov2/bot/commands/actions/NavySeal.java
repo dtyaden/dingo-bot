@@ -12,12 +12,12 @@ public class NavySeal extends AbstractMessageEventAction {
 
 
 
-    public NavySeal(MessageCreateEvent event) {
-        super(event);
+    public NavySeal(MessageCreateEvent event, List<String> arguments) {
+        super(event, arguments);
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
+    public Mono<Void> execute() {
         return getMessageChannel()
                 .flatMap(c -> c.createMessage(pasta))
                 .then();

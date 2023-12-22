@@ -11,13 +11,13 @@ import java.util.List;
 public class LogoutAction extends AbstractMessageEventAction {
     private final DingoClient dingoClient;
 
-    public LogoutAction(MessageCreateEvent event, DingoClient dingoClient) {
-        super(event);
+    public LogoutAction(MessageCreateEvent event, List<String> arguments, DingoClient dingoClient) {
+        super(event, arguments);
         this.dingoClient = dingoClient;
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
+    public Mono<Void> execute() {
 //        Mono<Void> command = Mono.justOrEmpty(event)
 //                .doOnNext(event -> dingoClient.getClient().logout().block(Duration.ofSeconds(5))).then();
 //        return command;

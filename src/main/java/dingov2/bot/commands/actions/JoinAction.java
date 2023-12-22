@@ -22,13 +22,13 @@ public class JoinAction extends AbstractMessageEventAction {
 
     Logger logger = LoggerFactory.getLogger(JoinAction.class);
 
-    public JoinAction(MessageCreateEvent event, DingoClient dingoClient) {
-        super(event);
+    public JoinAction(MessageCreateEvent event, List<String> arguments, DingoClient dingoClient) {
+        super(event, arguments);
         this.dingoClient = dingoClient;
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
+    public Mono<Void> execute() {
 
         logger.debug("executing join");
         VoiceChannelJoinSpec.builder().provider(dingoClient.getDingoPlayer()).build();

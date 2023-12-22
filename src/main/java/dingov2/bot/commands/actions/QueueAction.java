@@ -10,9 +10,9 @@ import java.util.List;
 
 public class QueueAction extends AbstractPlayMusicCommand {
 
-    public QueueAction(MessageCreateEvent event, TrackScheduler scheduler,
+    public QueueAction(MessageCreateEvent event, List<String> arguments, TrackScheduler scheduler,
                        DefaultAudioPlayerManager manager, DingoClient dingoClient) {
-        super(event, scheduler, manager, dingoClient);
+        super(event, arguments, scheduler, manager, dingoClient);
     }
 
     @Override

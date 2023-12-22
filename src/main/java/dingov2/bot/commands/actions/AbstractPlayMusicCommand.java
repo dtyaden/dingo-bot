@@ -21,9 +21,9 @@ public abstract class AbstractPlayMusicCommand extends AbstractMessageEventActio
 
     AudioTrackUtil util;
 
-    public AbstractPlayMusicCommand(MessageCreateEvent event, TrackScheduler scheduler,
+    public AbstractPlayMusicCommand(MessageCreateEvent event, List<String> arguments, TrackScheduler scheduler,
                                     DefaultAudioPlayerManager manager, DingoClient dingoClient) {
-        super(event);
+        super(event, arguments);
         this.scheduler = scheduler;
         this.manager = manager;
         this.dingoClient = dingoClient;
@@ -31,10 +31,10 @@ public abstract class AbstractPlayMusicCommand extends AbstractMessageEventActio
     }
     public abstract void playCommand(String trackPath);
     @Override
-    public Mono<Void> execute(List<String> args) {
-        JoinAction join = new JoinAction(event, dingoClient);
+    public Mono<Void> execute() {
+        JoinAction join = new JoinAction(event, arguments, dingoClient);
         join.execute().subscribe();
-        String trackPath = util.getTrack(args);
+        String trackPath = util.getTrack(arguments);
         playCommand(trackPath);
         return Mono.empty();
     }

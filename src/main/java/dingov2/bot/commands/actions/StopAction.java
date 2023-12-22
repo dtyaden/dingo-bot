@@ -11,13 +11,13 @@ public class StopAction extends AbstractMessageEventAction {
 
     private final TrackScheduler scheduler;
 
-    public StopAction(MessageCreateEvent event, TrackScheduler scheduler) {
-        super(event);
+    public StopAction(MessageCreateEvent event, List<String> arguments, TrackScheduler scheduler) {
+        super(event, arguments);
         this.scheduler = scheduler;
     }
 
     @Override
-    public Mono<Void> execute(List<String> args) {
+    public Mono<Void> execute() {
         return Mono.justOrEmpty(scheduler.getPlayer())
                 .doOnNext(player -> player.setPaused(true)).then();
     }

@@ -2,7 +2,6 @@ package dingov2.bot.commands;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import dingov2.bot.commands.actions.*;
-import dingov2.bot.services.DingoOpenAIQueryService;
 import dingov2.bot.services.OpenAIQueryService;
 import dingov2.bot.services.YouTubeService;
 import dingov2.bot.services.music.TrackScheduler;
@@ -12,8 +11,7 @@ import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.reaction.ReactionEmoji;
-import discord4j.core.spec.MessageEditSpec;
-import discord4j.core.spec.legacy.LegacyMessageEditSpec;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
@@ -21,14 +19,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses input and returns an appropriate command to execute based on the parameters given.
  */
 public class Commands extends HashMap<String, DingoOperation> {
-
+    private static final NullOperation nullOp = new NullOperation();
+    private ConcurrentHashMap<User, YoutubeSearchResultsContainer> searchResultsContainers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<User, DingoAction> previousActions = new ConcurrentHashMap<>();
     private final DingoClient dingoClient;
     private final Logger logger;
     private final OpenAIQueryService dingoOpenAIQueryService;
@@ -38,32 +42,41 @@ public class Commands extends HashMap<String, DingoOperation> {
     private ConcurrentHashMap<Message, Disposable> messageDeletionQueues = new ConcurrentHashMap<>();
     private DingoOperation playMusic;
     private HashMap<User, MessageCreateEvent> previousMessages = new HashMap<>();
-    private final int messageTimeout = 60;
+    private final int messageTimeout = 120;
     public ReactionEmoji.Unicode floppyDiskEmoji = ReactionEmoji.unicode("💾");
-    public YoutubeSearchResultsContainer container = new YoutubeSearchResultsContainer();
+    private static final Pattern singleDigitNumberRegex = Pattern.compile("\\d");
+
     private void registerCommand(DingoOperation action, String... commandKeys) {
         for (String command : commandKeys) {
             this.put(command, action);
         }
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    private YoutubeSearchResultsContainer createYouTubeSearchContainer(MessageCreateEvent event) {
+        YoutubeSearchResultsContainer container = new YoutubeSearchResultsContainer(event.getMessage().getTimestamp());
+        // if a message comes in without an author it should be caught by the calling method.
+        searchResultsContainers.put(event.getMessage().getAuthor().get(), container);
+        return container;
+    }
+
     public void loadCommands() {
         DefaultAudioPlayerManager manager = dingoClient.getDingoPlayer().getAudioplayerManager();
         TrackScheduler scheduler = dingoClient.getDingoPlayer().getScheduler();
-        playMusic = event -> new PlayMusicImmediatelyAction(event, scheduler, manager, dingoClient);
-        registerCommand(event -> new QueueAction(event, scheduler, manager, dingoClient), "queue", "add");
+        playMusic = (event, args) -> new PlayMusicImmediatelyAction(event, args, scheduler, manager, dingoClient);
+        registerCommand((event, args) -> new QueueAction(event, args, scheduler, manager, dingoClient), "queue", "add");
         registerCommand(playMusic, "play");
-        registerCommand(event -> new LogoutAction(event, dingoClient), "logout");
+        registerCommand((event, args) -> new LogoutAction(event, args, dingoClient), "logout");
         registerCommand(NavySeal::new, "pasta");
-        registerCommand(event -> new StopAction(event, scheduler), "stop", "pause");
-        registerCommand(event -> new VolumeAction(event, scheduler), "volume");
+        registerCommand((event, args) -> new StopAction(event, args, scheduler), "stop", "pause");
+        registerCommand((event, args) -> new VolumeAction(event, args, scheduler), "volume");
         registerCommand(DownloadAction::new, "download");
         registerCommand(ListAction::new, "list", "search", "find", "lookup");
-        registerCommand(event -> new NextTrackAction(event, scheduler), "next", "skip");
-        registerCommand(event -> new ClearQueueAction(event, scheduler), "clear", "clearqueue");
+        registerCommand((event, args) -> new NextTrackAction(event, args, scheduler), "next", "skip");
+        registerCommand((event, args) -> new ClearQueueAction(event, args, scheduler), "clear", "clearqueue");
         registerCommand(DownloadAction::new, "download");
-        registerCommand(event -> new QueryOpenAI(event, dingoOpenAIQueryService), "query");
-        registerCommand(event -> new SearchYoutubeAction(event, youTubeService, container.clear()), "yt", "youtube", "ytsearch");
+        registerCommand((event, args) -> new QueryOpenAI(event, args, dingoOpenAIQueryService), "query");
+        registerCommand((event, args) -> new SearchYoutubeAction(event, args, youTubeService, createYouTubeSearchContainer(event)), "yt", "youtube", "ytsearch");
     }
 
     public Commands(DingoClient dingoClient, OpenAIQueryService dingoOpenAIQueryService, YouTubeService youTubeService) {
@@ -104,20 +117,7 @@ public class Commands extends HashMap<String, DingoOperation> {
         );
     }
 
-    public void handleMessage(MessageCreateEvent event) {
-        String message = event.getMessage().getContent();
-        message = message.trim();
-        User self = event.getClient().getSelf().block();
-
-        // Clean up any messages that the bot sends after a certain amount of time.
-        event.getMessage().getAuthor().ifPresent(author -> {
-            if (author.getId().equals(author.getClient().getSelfId())) {
-                logger.info("Marking message with appropriate save/delete emojis");
-                removeMessageAfterTimeout(event);
-            }
-        });
-        //TODO: Determine if user is responding to a YT search that was made within the last minute.
-
+    private DingoAction getCommandFromMessage(String message, MessageCreateEvent event, User self) {
         // determine if the bot is mentioned and remove the mention from the command.
         if (event.getMessage().getUserMentions().contains(self)) {
             message = message.replaceAll("<@.*>", "").trim();
@@ -125,12 +125,12 @@ public class Commands extends HashMap<String, DingoOperation> {
             message = message.replaceFirst("@\\S*", "").trim();
         } else {
             // do nothing else with the message if the bot isn't mentioned
-            return;
+            return new NullAction();
         }
         List<String> command = Arrays.asList(message.split(" "));
         // if splitting leaves an empty list, we don't need to do anything
         if (command.isEmpty()) {
-            return;
+            return new NullAction();
         }
 
         String commandTitle = command.get(0).toLowerCase();
@@ -149,11 +149,50 @@ public class Commands extends HashMap<String, DingoOperation> {
             }
         }
 
-        // tell the operation to build an action object and run it.
-        operation.getAction(event).execute(commandArguments).subscribe(null, error -> {
-            logger.error(error.getMessage());
-            error.printStackTrace();
-        });
+        return operation.getAction(event, commandArguments);
+    }
+
+    private DingoAction handleYouTubeSearchResponse(String message, User author, MessageCreateEvent event) {
+        String selectedVideoUrl = "";
+        Matcher m = singleDigitNumberRegex.matcher(message);
+        //TODO: Determine if user is responding to a YT search that was made within the last 5 minutes.
+        if (!m.find()) {
+            return null;
+        }
+        YoutubeSearchResultsContainer container = searchResultsContainers.get(author);
+        if (container == null) {
+            return null;
+        }
+        if (!container.getCreateInstant().isBefore(Instant.now().plus(messageTimeout, ChronoUnit.SECONDS))) {
+            searchResultsContainers.remove(author);
+            return null;
+        }
+        int selectedVideoNumber;
+        selectedVideoNumber = Integer.parseInt(m.group());
+        selectedVideoUrl = container.getUrl(selectedVideoNumber);
+        return playMusic.getAction(event, Arrays.asList(selectedVideoUrl));
+    }
+
+    public void handleMessage(MessageCreateEvent event) {
+        String message = event.getMessage().getContent();
+        message = message.trim();
+        User self = event.getClient().getSelf().block();
+        String selectedVideoUrl = "";
+        // throw if message doesn't have an author somehow lol
+        User author = event.getMessage().getAuthor().orElseThrow(() -> new RuntimeException("Message did not have an author somehow. Most likely an API error."));
+        // Clean up any messages that the bot sends after a certain amount of time.
+        if (author.getId().equals(author.getClient().getSelfId())) {
+            logger.info("Marking message with appropriate save/delete emojis");
+            removeMessageAfterTimeout(event);
+        }
+        DingoAction action = handleYouTubeSearchResponse(message, author, event);
+        if (action == null){
+            action = getCommandFromMessage(message, event, self);
+        }
+        if(action == null){
+            throw new RuntimeException("failed to create action for " + message);
+        }
+        action.execute().subscribe();
         removeMessageAfterTimeout(event);
     }
 

@@ -9,8 +9,8 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public class PlayMusicImmediatelyAction extends AbstractPlayMusicCommand{
-    public PlayMusicImmediatelyAction(MessageCreateEvent event, TrackScheduler scheduler, DefaultAudioPlayerManager manager, DingoClient dingoClient) {
-        super(event, scheduler, manager, dingoClient);
+    public PlayMusicImmediatelyAction(MessageCreateEvent event, List<String> arguments, TrackScheduler scheduler, DefaultAudioPlayerManager manager, DingoClient dingoClient) {
+        super(event, arguments, scheduler, manager, dingoClient);
     }
     @Override
     public void playCommand(String trackPath) {
@@ -18,11 +18,11 @@ public class PlayMusicImmediatelyAction extends AbstractPlayMusicCommand{
     }
 
     @Override
-    public Mono<Void> execute(List<String> args){
-        if(args.isEmpty()){
+    public Mono<Void> execute(){
+        if(arguments.isEmpty()){
             scheduler.resumePlayback();
             return Mono.empty();
         }
-        return super.execute(args);
+        return super.execute();
     }
 }
