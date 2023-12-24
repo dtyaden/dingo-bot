@@ -3,9 +3,10 @@ package dingov2.bot.commands.actions;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
-import dingov2.bot.commands.AbstractMessageEventAction;
+import dingov2.bot.commands.AbstractAction;
 import dingov2.bot.commands.YoutubeSearchResultsContainer;
 import dingov2.bot.services.YouTubeService;
+import dingov2.discordapi.DingoEventWrapper;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
@@ -13,13 +14,13 @@ import reactor.core.publisher.Mono;
 import java.util.Iterator;
 import java.util.List;
 
-public class SearchYoutubeAction extends AbstractMessageEventAction {
+public class SearchYoutubeAction extends AbstractAction {
 
     public static final String youTubeUrlPrefix = "https://www.youtube.com/watch?v=";
     private YouTubeService dingoYouTubeService;
     private YoutubeSearchResultsContainer container;
 
-    public SearchYoutubeAction(MessageCreateEvent event, List<String> arguments, YouTubeService dingoYouTubeService, YoutubeSearchResultsContainer container){
+    public SearchYoutubeAction(DingoEventWrapper event, List<String> arguments, YouTubeService dingoYouTubeService, YoutubeSearchResultsContainer container){
         super(event, arguments);
         this.dingoYouTubeService = dingoYouTubeService;
         this.container = container;
@@ -27,14 +28,12 @@ public class SearchYoutubeAction extends AbstractMessageEventAction {
 
     private String prettyPrint(Iterator<SearchResult> iteratorSearchResults, String query) {
         StringBuilder messageBuilder = new StringBuilder();
-        StringBuilder urlBuilder = new StringBuilder();
-
         if (!iteratorSearchResults.hasNext()) {
             return "No results found for query '" + query + "'... jfc.";
         }
         int resultNumber = 1;
         while (iteratorSearchResults.hasNext()) {
-
+            StringBuilder urlBuilder = new StringBuilder();
             SearchResult singleVideo = iteratorSearchResults.next();
             ResourceId rId = singleVideo.getId();
 
@@ -55,13 +54,13 @@ public class SearchYoutubeAction extends AbstractMessageEventAction {
 
     @Override
     public Mono<Void> execute() {
-        String query = StringUtils.join(arguments);
+        String query = StringUtils.join(arguments, " ");
+        if(StringUtils.isBlank(query)){
+            return event.reply("You didn't give me anything to search for, brother.");
+        }
         return Mono.fromRunnable(() ->{
            List<SearchResult> results = dingoYouTubeService.queryYouTube(query);
-
-           event.getMessage().getChannel().subscribe((messageChannel -> {
-               messageChannel.createMessage(prettyPrint(results.iterator(), query)).subscribe();
-           }));
+           event.reply(prettyPrint(results.iterator(), query)).subscribe();
         });
     }
 

@@ -1,28 +1,25 @@
 package dingov2.bot.commands.actions;
 
-import dingov2.bot.commands.AbstractMessageEventAction;
-import dingov2.bot.services.music.DingoPlayer;
+import dingov2.bot.commands.AbstractAction;
 import dingov2.discordapi.DingoClient;
+import dingov2.discordapi.DingoEventWrapper;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.VoiceState;
 import discord4j.core.object.entity.Member;
-import discord4j.core.spec.VoiceChannelCreateSpec;
 import discord4j.core.spec.VoiceChannelJoinSpec;
-import discord4j.core.spec.legacy.LegacyVoiceChannelCreateSpec;
-import discord4j.voice.AudioReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public class JoinAction extends AbstractMessageEventAction {
+public class JoinAction extends AbstractAction {
 
     private final DingoClient dingoClient;
 
     Logger logger = LoggerFactory.getLogger(JoinAction.class);
 
-    public JoinAction(MessageCreateEvent event, List<String> arguments, DingoClient dingoClient) {
+    public JoinAction(DingoEventWrapper event, List<String> arguments, DingoClient dingoClient) {
         super(event, arguments);
         this.dingoClient = dingoClient;
     }

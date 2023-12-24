@@ -1,13 +1,13 @@
 package dingov2.bot.commands;
 
 import dingov2.bot.commands.actions.NullAction;
-import discord4j.core.event.domain.message.MessageCreateEvent;
+import dingov2.discordapi.DingoEventWrapper;
 
 import java.util.List;
 
 public class NullOperation implements DingoOperation {
     @Override
-    public DingoAction getAction(MessageCreateEvent event, List<String> arguments) {
+    public DingoAction getAction(DingoEventWrapper event, List<String> arguments) {
         return new NullAction();
     }
 }

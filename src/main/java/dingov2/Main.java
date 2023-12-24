@@ -37,8 +37,8 @@ public class Main {
         }
 
         logger.info("starting");
-        if (args.length > 2) {
-            AudioTrackUtil.AUDIO_DIRECTORY = args[2];
+        if (args.length > 0) {
+            AudioTrackUtil.AUDIO_DIRECTORY = args[0];
         }
         DingoClient dingoClient = new DingoClient(secrets);
     }

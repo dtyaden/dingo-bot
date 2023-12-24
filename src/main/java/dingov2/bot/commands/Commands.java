@@ -5,13 +5,20 @@ import dingov2.bot.commands.actions.*;
 import dingov2.bot.services.OpenAIQueryService;
 import dingov2.bot.services.YouTubeService;
 import dingov2.bot.services.music.TrackScheduler;
+import dingov2.discordapi.ChatInputInteractionEventWrapper;
 import dingov2.discordapi.DingoClient;
+import dingov2.discordapi.DingoEventWrapper;
+import dingov2.discordapi.MessageCreateEventWrapper;
+import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.reaction.ReactionEmoji;
-import org.apache.commons.lang3.StringUtils;
+import discord4j.core.spec.InteractionCallbackSpec;
+import discord4j.discordjson.json.ApplicationCommandRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
@@ -44,19 +51,34 @@ public class Commands extends HashMap<String, DingoOperation> {
     private HashMap<User, MessageCreateEvent> previousMessages = new HashMap<>();
     private final int messageTimeout = 120;
     public ReactionEmoji.Unicode floppyDiskEmoji = ReactionEmoji.unicode("💾");
-    private static final Pattern singleDigitNumberRegex = Pattern.compile("\\d");
+    private static final Pattern singleDigitNumberRegex = Pattern.compile("^\\d$");
 
-    private void registerCommand(DingoOperation action, String... commandKeys) {
+    private void registerGuildCommand(ApplicationCommandRequest request) {
+        long guildId = 313821527118446606L;
+        dingoClient.getClient()
+                .getApplicationId()
+                .subscribe((applicationId) -> dingoClient
+                        .getClient()
+                        .getApplicationService()
+                        .createGuildApplicationCommand(applicationId, guildId, request)
+                        .subscribe());
+    }
+
+    private void registerCommand(DingoOperation action, String description, String... commandKeys) {
+        String name = commandKeys[0];
         for (String command : commandKeys) {
+            registerGuildCommand(action.getOperation(name, description));
             this.put(command, action);
         }
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private YoutubeSearchResultsContainer createYouTubeSearchContainer(MessageCreateEvent event) {
-        YoutubeSearchResultsContainer container = new YoutubeSearchResultsContainer(event.getMessage().getTimestamp());
+    private YoutubeSearchResultsContainer createYouTubeSearchContainer(DingoEventWrapper event) {
+        YoutubeSearchResultsContainer container = new YoutubeSearchResultsContainer(event.getTimestamp());
         // if a message comes in without an author it should be caught by the calling method.
-        searchResultsContainers.put(event.getMessage().getAuthor().get(), container);
+        searchResultsContainers.put(event
+                .getMember()
+                .orElseThrow(() -> new RuntimeException("Message did not have a member associated with it somehow. Shouldn't happen ever.")), container);
         return container;
     }
 
@@ -64,19 +86,18 @@ public class Commands extends HashMap<String, DingoOperation> {
         DefaultAudioPlayerManager manager = dingoClient.getDingoPlayer().getAudioplayerManager();
         TrackScheduler scheduler = dingoClient.getDingoPlayer().getScheduler();
         playMusic = (event, args) -> new PlayMusicImmediatelyAction(event, args, scheduler, manager, dingoClient);
-        registerCommand((event, args) -> new QueueAction(event, args, scheduler, manager, dingoClient), "queue", "add");
-        registerCommand(playMusic, "play");
-        registerCommand((event, args) -> new LogoutAction(event, args, dingoClient), "logout");
-        registerCommand(NavySeal::new, "pasta");
-        registerCommand((event, args) -> new StopAction(event, args, scheduler), "stop", "pause");
-        registerCommand((event, args) -> new VolumeAction(event, args, scheduler), "volume");
-        registerCommand(DownloadAction::new, "download");
-        registerCommand(ListAction::new, "list", "search", "find", "lookup");
-        registerCommand((event, args) -> new NextTrackAction(event, args, scheduler), "next", "skip");
-        registerCommand((event, args) -> new ClearQueueAction(event, args, scheduler), "clear", "clearqueue");
-        registerCommand(DownloadAction::new, "download");
-        registerCommand((event, args) -> new QueryOpenAI(event, args, dingoOpenAIQueryService), "query");
-        registerCommand((event, args) -> new SearchYoutubeAction(event, args, youTubeService, createYouTubeSearchContainer(event)), "yt", "youtube", "ytsearch");
+        registerCommand((event, args) -> new QueueAction(event, args, scheduler, manager, dingoClient), "Queue a new track to be played", "queue", "add");
+        registerCommand(playMusic, "immediately play a new track", "play");
+        registerCommand((event, args) -> new LogoutAction(event, args, dingoClient), "tell the bot to logout of discord. does not work.", "logout");
+        registerCommand((event1, arguments) -> new NavySeal(event1, arguments), "what the fuck did you just fucking say about me you little bitch?!", "pasta");
+        registerCommand((event, args) -> new StopAction(event, args, scheduler), "Immediately stop playback of the current track.", "stop", "pause");
+        registerCommand((event, args) -> new VolumeAction(event, args, scheduler), "Set volume of music playback. Usage /volume {number from 1-100} ", "volume");
+        registerCommand((event1, arguments) -> new DownloadAction(event1, arguments), "Download youtube video, convert to audio only. args = link to vid", "download");
+        registerCommand((event1, arguments) -> new ListAction(event1, arguments), "Search downloaded files. Usage: /search {search keyword}", "search ", "list", "search", "find", "lookup");
+        registerCommand((event, args) -> new NextTrackAction(event, args, scheduler), "Force the queue to skip to the next track.", "next", "skip");
+        registerCommand((event, args) -> new ClearQueueAction(event, args, scheduler), "Remove all tracks from the queue.", "clear", "clearqueue");
+        registerCommand((event, args) -> new QueryOpenAI(event, args, dingoOpenAIQueryService), "Send a query to gpt-4 on openAI. Costs real money but fuck it.", "query");
+        registerCommand((event, args) -> new SearchYoutubeAction(event, args, youTubeService, createYouTubeSearchContainer(event)), "Search youtube and get top 5 results. Type the number you want to play and send it.", "yt", "youtube", "ytsearch");
     }
 
     public Commands(DingoClient dingoClient, OpenAIQueryService dingoOpenAIQueryService, YouTubeService youTubeService) {
@@ -84,7 +105,6 @@ public class Commands extends HashMap<String, DingoOperation> {
         this.dingoClient = dingoClient;
         this.dingoOpenAIQueryService = dingoOpenAIQueryService;
         this.youTubeService = youTubeService;
-        loadCommands();
         logger = LoggerFactory.getLogger(Commands.class);
     }
 
@@ -92,7 +112,6 @@ public class Commands extends HashMap<String, DingoOperation> {
         Flux<Long> jfc = Flux.interval(Duration.ofSeconds(messageTimeout));
         Disposable disposable = jfc.take(1).subscribe(uselessValue -> {
             event.getMessage().delete().subscribe();
-
         });
         messageDeletionQueues.putIfAbsent(event.getMessage(), disposable);
         event.getMessage().addReaction(floppyDiskEmoji).subscribe();
@@ -117,40 +136,6 @@ public class Commands extends HashMap<String, DingoOperation> {
         );
     }
 
-    private DingoAction getCommandFromMessage(String message, MessageCreateEvent event, User self) {
-        // determine if the bot is mentioned and remove the mention from the command.
-        if (event.getMessage().getUserMentions().contains(self)) {
-            message = message.replaceAll("<@.*>", "").trim();
-        } else if (message.startsWith("@dingo")) {
-            message = message.replaceFirst("@\\S*", "").trim();
-        } else {
-            // do nothing else with the message if the bot isn't mentioned
-            return new NullAction();
-        }
-        List<String> command = Arrays.asList(message.split(" "));
-        // if splitting leaves an empty list, we don't need to do anything
-        if (command.isEmpty()) {
-            return new NullAction();
-        }
-
-        String commandTitle = command.get(0).toLowerCase();
-        DingoOperation operation = this.get(commandTitle);
-        List<String> commandArguments;
-
-        // If there's no matching command, treat it as a play music command and use the command as the arguments
-        if (operation == null) {
-            operation = playMusic;
-            commandArguments = command;
-        } else {
-            if (command.size() > 1) {
-                commandArguments = command.subList(1, command.size());
-            } else {
-                commandArguments = new ArrayList<>();
-            }
-        }
-
-        return operation.getAction(event, commandArguments);
-    }
 
     private DingoAction handleYouTubeSearchResponse(String message, User author, MessageCreateEvent event) {
         String selectedVideoUrl = "";
@@ -170,30 +155,90 @@ public class Commands extends HashMap<String, DingoOperation> {
         int selectedVideoNumber;
         selectedVideoNumber = Integer.parseInt(m.group());
         selectedVideoUrl = container.getUrl(selectedVideoNumber);
-        return playMusic.getAction(event, Arrays.asList(selectedVideoUrl));
+        DingoEventWrapper eventWrapper;
+        return playMusic.getAction(new MessageCreateEventWrapper(event), Collections.singletonList(selectedVideoUrl));
+    }
+
+    public void handleApplicationCommand(ChatInputInteractionEvent event, GatewayDiscordClient gatewayDiscordClient) {
+
+        DingoOperation operation = get(event.getCommandName());
+        var channelSnowflake = event.getInteraction().getChannelId();
+        gatewayDiscordClient.getChannelById(channelSnowflake).subscribe(channel -> {
+            StringBuilder argsBuilder = new StringBuilder();
+            event.getOption("args").ifPresent(applicationCommandInteractionOption -> {
+                applicationCommandInteractionOption.getValue().ifPresent(value -> {
+                    argsBuilder.append(value.getRaw());
+                });
+            });
+            DingoOperation action = get(event.getCommandName());
+            if (action == null) {
+                throw new RuntimeException("A slash command somehow didn't have a matching operation. This should never happen.");
+            }
+            event.reply(event.getCommandName() + " " + argsBuilder).then().subscribe();
+            DingoAction dingoAction = action.getAction(new ChatInputInteractionEventWrapper(event), Collections.singletonList(argsBuilder.toString()));
+            dingoAction.execute().subscribe();
+        });
+    }
+
+    private DingoAction getCommandFromMessage(String message, MessageCreateEvent event) {
+        List<String> command = Arrays.asList(message.split(" "));
+        // if splitting leaves an empty list, we don't need to do anything
+        if (command.isEmpty()) {
+            return new NullAction();
+        }
+        String commandTitle = command.get(0).toLowerCase();
+        DingoOperation operation = this.get(commandTitle);
+        List<String> commandArguments;
+
+        // If there's no matching command, treat it as a play music command and use the command as the arguments
+        if (operation == null) {
+            operation = playMusic;
+            commandArguments = command;
+        } else {
+            if (command.size() > 1) {
+                commandArguments = command.subList(1, command.size());
+            } else {
+                commandArguments = new ArrayList<>();
+            }
+        }
+
+        return operation.getAction(new MessageCreateEventWrapper(event), commandArguments);
     }
 
     public void handleMessage(MessageCreateEvent event) {
+
         String message = event.getMessage().getContent();
         message = message.trim();
         User self = event.getClient().getSelf().block();
-        String selectedVideoUrl = "";
-        // throw if message doesn't have an author somehow lol
-        User author = event.getMessage().getAuthor().orElseThrow(() -> new RuntimeException("Message did not have an author somehow. Most likely an API error."));
+        Member member = event.getMember().orElseThrow(() -> new RuntimeException("Message did not have a member associated with it. Most likely something wrong/weird with the API"));
         // Clean up any messages that the bot sends after a certain amount of time.
-        if (author.getId().equals(author.getClient().getSelfId())) {
-            logger.info("Marking message with appropriate save/delete emojis");
-            removeMessageAfterTimeout(event);
+        dingoClient.getClient().getSelf().subscribe(userData ->{
+            if(userData.id().asString().equals(member.getId().asString())){
+                logger.info("Marking message with appropriate save/delete emojis");
+                removeMessageAfterTimeout(event);
+            }
+        });
+        boolean dingoMentioned = event.getMessage().getUserMentions().contains(self);
+        boolean isAtDingo = message.startsWith("@dingo");
+        if (dingoMentioned) {
+            message = message.replaceAll("<@.*>", "").trim();
+        } else if (isAtDingo) {
+            message = message.replaceFirst("@\\S*", "").trim();
         }
-        DingoAction action = handleYouTubeSearchResponse(message, author, event);
-        if (action == null){
-            action = getCommandFromMessage(message, event, self);
+        var user = dingoClient.getClient().getUserById(member.getId());
+        DingoAction action = handleYouTubeSearchResponse(message, member, event);
+        // failed to get a youtube play action and dingo isn't mentioned. it's not a valid command.
+        if (action == null) {
+            if (!dingoMentioned && !isAtDingo) {
+                return;
+            }
+            action = getCommandFromMessage(message, event);
         }
-        if(action == null){
-            throw new RuntimeException("failed to create action for " + message);
+
+        if (action == null) {
+            return;
         }
         action.execute().subscribe();
         removeMessageAfterTimeout(event);
     }
-
 }
