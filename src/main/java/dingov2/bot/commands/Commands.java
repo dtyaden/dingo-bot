@@ -54,14 +54,13 @@ public class Commands extends HashMap<String, DingoOperation> {
     private static final Pattern singleDigitNumberRegex = Pattern.compile("^\\d$");
 
     private void registerGuildCommand(ApplicationCommandRequest request) {
-        long guildId = 313821527118446606L;
-        dingoClient.getClient()
-                .getApplicationId()
-                .subscribe((applicationId) -> dingoClient
-                        .getClient()
+        dingoClient.getClient().getGuilds().subscribe(guild -> {
+            dingoClient.getClient().getApplicationId().subscribe(applicationId -> {
+                dingoClient.getClient()
                         .getApplicationService()
-                        .createGuildApplicationCommand(applicationId, guildId, request)
-                        .subscribe());
+                        .createGuildApplicationCommand(applicationId, guild.id().asLong(), request).subscribe();
+            });
+        });
     }
 
     private void registerCommand(DingoOperation action, String description, String... commandKeys) {
