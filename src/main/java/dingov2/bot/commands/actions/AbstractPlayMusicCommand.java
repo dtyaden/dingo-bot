@@ -1,10 +1,11 @@
 package dingov2.bot.commands.actions;
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import dingov2.bot.commands.AbstractMessageEventAction;
+import dingov2.bot.commands.AbstractAction;
 import dingov2.bot.services.music.AudioTrackUtil;
 import dingov2.bot.services.music.TrackScheduler;
 import dingov2.discordapi.DingoClient;
+import dingov2.discordapi.DingoEventWrapper;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public abstract class AbstractPlayMusicCommand extends AbstractMessageEventAction {
+public abstract class AbstractPlayMusicCommand extends AbstractAction {
 
     private Logger logger = LoggerFactory.getLogger(AbstractPlayMusicCommand.class);
     protected final TrackScheduler scheduler;
@@ -21,9 +22,9 @@ public abstract class AbstractPlayMusicCommand extends AbstractMessageEventActio
 
     AudioTrackUtil util;
 
-    public AbstractPlayMusicCommand(MessageCreateEvent event, TrackScheduler scheduler,
+    public AbstractPlayMusicCommand(DingoEventWrapper event, List<String> arguments, TrackScheduler scheduler,
                                     DefaultAudioPlayerManager manager, DingoClient dingoClient) {
-        super(event);
+        super(event, arguments);
         this.scheduler = scheduler;
         this.manager = manager;
         this.dingoClient = dingoClient;
@@ -31,10 +32,10 @@ public abstract class AbstractPlayMusicCommand extends AbstractMessageEventActio
     }
     public abstract void playCommand(String trackPath);
     @Override
-    public Mono<Void> execute(List<String> args) {
-        JoinAction join = new JoinAction(event, dingoClient);
+    public Mono<Void> execute() {
+        JoinAction join = new JoinAction(event, arguments, dingoClient);
         join.execute().subscribe();
-        String trackPath = util.getTrack(args);
+        String trackPath = util.getTrack(arguments);
         playCommand(trackPath);
         return Mono.empty();
     }

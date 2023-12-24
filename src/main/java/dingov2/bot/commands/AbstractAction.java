@@ -1,25 +1,29 @@
 package dingov2.bot.commands;
 
+        import dingov2.discordapi.DingoEventWrapper;
         import discord4j.core.event.domain.message.MessageCreateEvent;
         import discord4j.core.object.entity.Message;
         import discord4j.core.object.entity.channel.MessageChannel;
+        import discord4j.discordjson.json.ApplicationCommandRequest;
         import reactor.core.publisher.Mono;
 
         import java.util.ArrayList;
         import java.util.List;
 
-public abstract class AbstractMessageEventAction implements DingoAction {
+public abstract class AbstractAction implements DingoAction {
 
-    protected MessageCreateEvent event;
-
-    public AbstractMessageEventAction(MessageCreateEvent event) {
+    protected DingoEventWrapper event;
+    protected List<String> arguments;
+    public ApplicationCommandRequest commandRequest;
+    public AbstractAction(DingoEventWrapper event, List<String> arguments) {
         this.event = event;
+        this.arguments = arguments;
     }
 
     public Mono<MessageChannel> getMessageChannel() {
-        return Mono.justOrEmpty(event.getMessage())
-                .flatMap(Message::getChannel);
+        return event.getChannel();
     }
+
 
     /**
      * Convert arguments to a String List starting from the first argument that isn't the command.
@@ -32,18 +36,6 @@ public abstract class AbstractMessageEventAction implements DingoAction {
             list.add(args[i]);
         }
         return list;
-    }
-
-    /**
-     * return a Mono containing the list of arguments as Strings without the command.
-     * @return
-     */
-    public Mono<List<String>> getArguments() {
-        return getMessageContent().map(str -> getArgumentList(str.split(" ")));
-    }
-
-    public Mono<String> getMessageContent() {
-        return Mono.justOrEmpty(event.getMessage().getContent());
     }
 }
 
