@@ -47,10 +47,9 @@ public class DingoOpenAIQueryService implements OpenAIQueryService {
             logger.info("processing chat message");
             OpenAiService service = new OpenAiService(apiKey);
             OpenAiResponse<Assistant> test = service.listAssistants(ListSearchParameters.builder().build());
-            Assistant dingoAssistant = test.getData().stream().filter(assistant -> assistant
-                            .getName()
-                            .toLowerCase()
-                            .contains("dingo"))
+            Assistant dingoAssistant = test.getData().stream().filter(assistant -> {
+                        return !StringUtils.isBlank(assistant.getName()) && assistant.getName().toLowerCase().contains("dingo");
+                    })
                     .findFirst()
                     .orElseThrow();
 

@@ -1,6 +1,6 @@
 package dingov2.discordapi;
 
-import dingov2.bot.commands.Commands;
+import dingov2.bot.commands.MessageProcessor;
 import dingov2.bot.services.*;
 import dingov2.bot.services.music.DingoPlayer;
 import dingov2.config.DingoSecrets;
@@ -31,7 +31,7 @@ public class DingoClient {
         discordClient = DiscordClient.create(secrets.dingoApiKey);
         OpenAIQueryService service = StringUtils.isBlank(secrets.openAiApiKey) ? new NullOpenAIQueryService() : new DingoOpenAIQueryService(secrets.openAiApiKey);
         YouTubeService youTubeService = StringUtils.isBlank(secrets.youTubeApiKey) ? new NullYouTubeService() : new DingoYouTubeService(secrets.youTubeApiKey);
-        Commands commandHandler = new Commands(this, service, youTubeService);
+        MessageProcessor commandHandler = new MessageProcessor(this, service, youTubeService);
         commandHandler.loadCommands();
         discordClient.withGateway((GatewayDiscordClient gateway) -> {
 
