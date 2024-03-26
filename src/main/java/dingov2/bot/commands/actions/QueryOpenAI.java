@@ -2,6 +2,7 @@ package dingov2.bot.commands.actions;
 
 import dingov2.bot.commands.AbstractAction;
 import dingov2.bot.services.OpenAIQueryService;
+import dingov2.bot.services.SendMessageService;
 import dingov2.discordapi.DingoEventWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,10 +24,8 @@ public class QueryOpenAI extends AbstractAction {
     @Override
     public Mono<Void> execute() {
         logger.info("query command received");
-        dingoOpenAIQueryService.sendChatMessage(StringUtils.join(arguments))
-                .subscribe(message -> event
-                        .reply(message)
-                        .subscribe());
+        dingoOpenAIQueryService.sendChatMessage(StringUtils.join(arguments), event)
+                .subscribe(message -> new SendMessageService(event, message).chopAndSendMessage());
         return Mono.empty();
     }
 
