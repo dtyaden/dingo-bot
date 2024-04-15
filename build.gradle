@@ -9,6 +9,7 @@ tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
 }
 
+
 application{
 	mainClass = "dingov2.Main"
 }
@@ -19,6 +20,7 @@ distZip {
 	destinationDirectory = file("./")
 //	archiveFileName = "${archiveBaseName}.${archiveVersion}.${archiveExtension}"
 	exclude 'src/resources/*'
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 
@@ -38,6 +40,7 @@ jar {
 				'Main-Class': 'engine.MainBot'
 	}
 }
+
 
 repositories {
 	mavenCentral()
