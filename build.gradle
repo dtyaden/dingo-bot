@@ -64,7 +64,7 @@ dependencies {
 	implementation 'com.discord4j:discord4j-core:3.2.6'
 	implementation 'com.discord4j:discord4j-common:3.2.6'
 	implementation 'com.discord4j:discord4j-voice:3.2.6'
-	implementation 'com.sedmelluq:lavaplayer:latest.integration'
+	implementation 'com.github.devoxin:lavaplayer:latest.release'
 	implementation 'com.theokanning.openai-gpt3-java:api:latest.release'
 	implementation 'com.theokanning.openai-gpt3-java:service:latest.release'
 	implementation 'com.theokanning.openai-gpt3-java:client:latest.release'
