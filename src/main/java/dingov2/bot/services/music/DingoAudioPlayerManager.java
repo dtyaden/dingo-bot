@@ -11,5 +11,4 @@ public class DingoAudioPlayerManager extends DefaultAudioPlayerManager {
         registerSourceManager(new YoutubeAudioSourceManager());
         registerSourceManager(new LocalAudioSourceManager());
     }
-
 }

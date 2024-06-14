@@ -15,7 +15,7 @@ public interface DingoActionGenerator {
                 .description(description)
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("text")
-                        .description("Text necessary for the command to run, eg. a youtube link, an audio file to play, what to search for. Example: type /yt and enter 'the boys are back in town' here to search for the boys are back in town.")
+                        .description("Click this to enter additional text for the command Example: type /yt and enter 'boys back in town'")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(false)
                         .build())
