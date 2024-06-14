@@ -6,4 +6,5 @@ public class DingoSecrets {
     public String youTubeApiKey;
     public String openAiApiKey;
     public String dingoApiKey;
+    public boolean testBuild;
 }

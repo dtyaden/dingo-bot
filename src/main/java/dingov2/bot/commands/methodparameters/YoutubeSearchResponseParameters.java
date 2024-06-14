@@ -2,13 +2,14 @@ package dingov2.bot.commands.methodparameters;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
+import discord4j.discordjson.json.UserData;
 
 public class YoutubeSearchResponseParameters {
     private String message;
-    private User author;
+    private UserData author;
     private MessageCreateEvent event;
 
-    public YoutubeSearchResponseParameters(String message, User author, MessageCreateEvent event) {
+    public YoutubeSearchResponseParameters(String message, UserData author, MessageCreateEvent event) {
         this.message = message;
         this.author = author;
         this.event = event;
@@ -18,7 +19,7 @@ public class YoutubeSearchResponseParameters {
         return message;
     }
 
-    public User getAuthor() {
+    public UserData getAuthor() {
         return author;
     }
 

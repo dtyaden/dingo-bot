@@ -1,17 +1,16 @@
 package dingov2.bot.commands.actions;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import dingov2.bot.services.music.TrackScheduler;
 import dingov2.discordapi.DingoClient;
 import dingov2.discordapi.DingoEventWrapper;
-import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public class PlayMusicImmediatelyAction extends AbstractPlayMusicCommand{
-    public PlayMusicImmediatelyAction(DingoEventWrapper event, List<String> arguments, TrackScheduler scheduler, DefaultAudioPlayerManager manager, DingoClient dingoClient) {
-        super(event, arguments, scheduler, manager, dingoClient);
+    public PlayMusicImmediatelyAction(DingoEventWrapper event, List<String> arguments, TrackScheduler scheduler, AudioPlayerManager manager, DingoClient dingoClient) {
+        super(event, arguments, scheduler, dingoClient);
     }
     @Override
     public void playCommand(String trackPath) {

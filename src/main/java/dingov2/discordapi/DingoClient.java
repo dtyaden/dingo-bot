@@ -24,10 +24,12 @@ public class DingoClient {
     private DiscordClient discordClient;
     private DingoPlayer dingoPlayer;
     private VoiceConnectionRegistry registry;
+    private boolean isTestBuild = false;
 
     public DingoClient(DingoSecrets secrets) {
         dingoPlayer = new DingoPlayer();
         AtomicReference<GatewayDiscordClient> gatewayClient = new AtomicReference<>();
+        isTestBuild = secrets.testBuild;
         discordClient = DiscordClient.create(secrets.dingoApiKey);
         OpenAIQueryService service = StringUtils.isBlank(secrets.openAiApiKey) ? new NullOpenAIQueryService() : new DingoOpenAIQueryService(secrets.openAiApiKey);
         YouTubeService youTubeService = StringUtils.isBlank(secrets.youTubeApiKey) ? new NullYouTubeService() : new DingoYouTubeService(secrets.youTubeApiKey);
@@ -63,4 +65,7 @@ public class DingoClient {
         return registry;
     }
 
+    public boolean isTestBuild() {
+        return isTestBuild;
+    }
 }

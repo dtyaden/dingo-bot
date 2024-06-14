@@ -7,18 +7,18 @@ public class DefaultDingoOperationRetrieval {
 
     private final Channel channel;
     private final boolean dingoMentioned;
-    private final DingoOperation queryOpenAi;
-    private final DingoOperation playMusic;
+    private final DingoActionGenerator queryOpenAi;
+    private final DingoActionGenerator playMusic;
 
-    public DefaultDingoOperationRetrieval(Channel channel, boolean dingoMentioned, DingoOperation queryOpenAi,
-                                          DingoOperation playMusic) {
+    public DefaultDingoOperationRetrieval(Channel channel, boolean dingoMentioned, DingoActionGenerator queryOpenAi,
+                                          DingoActionGenerator playMusic) {
         this.channel = channel;
         this.dingoMentioned = dingoMentioned;
         this.queryOpenAi = queryOpenAi;
         this.playMusic = playMusic;
     }
 
-    public DingoOperation retrieveDefaultCommand() {
+    public DingoActionGenerator retrieveDefaultCommand() {
         if (channel instanceof PrivateChannel) {
             return queryOpenAi;
         }

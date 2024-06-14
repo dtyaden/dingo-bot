@@ -23,7 +23,9 @@ distZip {
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-
+distTar{
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 
 distributions{
 	main {
@@ -50,6 +52,7 @@ repositories {
 	maven{
 		url 'https://m2.dv8tion.net/releases'
 	}
+	maven{url "https://maven.lavalink.dev/releases"}
 }
 dependencies {
 	// https://mvnrepository.com/artifact/com.discord4j/Discord4J
@@ -67,7 +70,7 @@ dependencies {
 	implementation 'com.discord4j:discord4j-core:3.2.6'
 	implementation 'com.discord4j:discord4j-common:3.2.6'
 	implementation 'com.discord4j:discord4j-voice:3.2.6'
-	implementation 'com.github.devoxin:lavaplayer:latest.release'
+	implementation 'com.github.devoxin:lavaplayer:1.9.1'
 	implementation 'com.theokanning.openai-gpt3-java:api:latest.release'
 	implementation 'com.theokanning.openai-gpt3-java:service:latest.release'
 	implementation 'com.theokanning.openai-gpt3-java:client:latest.release'
@@ -78,6 +81,7 @@ dependencies {
 	implementation 'com.vdurmont:emoji-java:5.1.1'
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.16.0'
+	implementation("dev.lavalink.youtube:common:latest.release")
 
 }
 

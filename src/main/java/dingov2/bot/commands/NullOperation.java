@@ -5,7 +5,7 @@ import dingov2.discordapi.DingoEventWrapper;
 
 import java.util.List;
 
-public class NullOperation implements DingoOperation {
+public class NullOperation implements DingoActionGenerator {
     @Override
     public DingoAction getAction(DingoEventWrapper event, List<String> arguments) {
         return new NullAction();

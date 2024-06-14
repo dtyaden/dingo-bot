@@ -28,11 +28,11 @@ public class JoinAction extends AbstractAction {
     public Mono<Void> execute() {
 
         logger.debug("executing join");
-        VoiceChannelJoinSpec.builder().provider(dingoClient.getDingoPlayer()).build();
+        VoiceChannelJoinSpec joinSpec = VoiceChannelJoinSpec.builder().provider(dingoClient.getDingoPlayer()).build();
         return Mono.justOrEmpty(event.getMember())
                 .flatMap(Member::getVoiceState)
                 .flatMap(VoiceState::getChannel)
-                .flatMap(channel -> channel.join(spec -> spec.setProvider(dingoClient.getDingoPlayer())))
+                .flatMap(channel -> channel.join(joinSpec))
                 .then();
     }
 }

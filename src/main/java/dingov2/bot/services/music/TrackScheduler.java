@@ -2,7 +2,7 @@ package dingov2.bot.services.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.*;
@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 public class TrackScheduler extends AudioEventAdapter implements AudioLoadResultHandler {
 
     private final AudioPlayer player;
-    private DefaultAudioPlayerManager manager;
+    private AudioPlayerManager manager;
     private BlockingDeque<AudioTrack> queue;
     private AudioTrackUtil util;
     private Logger logger;
 
-    public TrackScheduler(AudioPlayer player, DefaultAudioPlayerManager manager) {
+    public TrackScheduler(AudioPlayer player, AudioPlayerManager manager) {
         this.player = player;
         this.manager = manager;
         this.queue = new LinkedBlockingDeque<>();

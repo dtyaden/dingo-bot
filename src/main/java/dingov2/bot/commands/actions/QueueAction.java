@@ -1,6 +1,6 @@
 package dingov2.bot.commands.actions;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import dingov2.bot.services.music.TrackScheduler;
 import dingov2.discordapi.DingoClient;
 import dingov2.discordapi.DingoEventWrapper;
@@ -11,8 +11,8 @@ import java.util.List;
 public class QueueAction extends AbstractPlayMusicCommand {
 
     public QueueAction(DingoEventWrapper event, List<String> arguments, TrackScheduler scheduler,
-                       DefaultAudioPlayerManager manager, DingoClient dingoClient) {
-        super(event, arguments, scheduler, manager, dingoClient);
+                       AudioPlayerManager manager, DingoClient dingoClient) {
+        super(event, arguments, scheduler, dingoClient);
     }
 
     @Override

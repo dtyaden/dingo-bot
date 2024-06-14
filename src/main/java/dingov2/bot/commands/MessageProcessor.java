@@ -1,6 +1,6 @@
 package dingov2.bot.commands;
 
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import dingov2.bot.commands.actions.*;
 import dingov2.bot.commands.methodparameters.GetCommandFromMessageParameters;
 import dingov2.bot.commands.methodparameters.YoutubeSearchResponseParameters;
@@ -11,14 +11,18 @@ import dingov2.discordapi.ChatInputInteractionEventWrapper;
 import dingov2.discordapi.DingoClient;
 import dingov2.discordapi.DingoEventWrapper;
 import dingov2.discordapi.MessageCreateEventWrapper;
+import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.reaction.ReactionEmoji;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.discordjson.json.UserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
@@ -36,9 +40,9 @@ import java.util.regex.Pattern;
 /**
  * Parses input and returns an appropriate command to execute based on the parameters given.
  */
-public class MessageProcessor extends HashMap<String, DingoOperation> {
+public class MessageProcessor extends HashMap<String, DingoActionGenerator> {
     private static final NullOperation nullOp = new NullOperation();
-    private ConcurrentHashMap<User, YoutubeSearchResultsContainer> searchResultsContainers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, YoutubeSearchResultsContainer> searchResultsContainers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<User, DingoAction> previousActions = new ConcurrentHashMap<>();
     private final DingoClient dingoClient;
     private final Logger logger;
@@ -47,12 +51,12 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
     private String commandSymbol = "$";
     private static final HashSet<String> votingEmojis = new HashSet<>(Arrays.asList("🗑", "💾"));
     private ConcurrentHashMap<Message, Disposable> messageDeletionQueues = new ConcurrentHashMap<>();
-    private DingoOperation playMusic;
+    private DingoActionGenerator playMusic;
     private HashMap<User, MessageCreateEvent> previousMessages = new HashMap<>();
     private final int messageTimeout = 120;
     public ReactionEmoji.Unicode floppyDiskEmoji = ReactionEmoji.unicode("💾");
     private static final Pattern singleDigitNumberRegex = Pattern.compile("^\\d$");
-    private DingoOperation queryOpenAI;
+    private DingoActionGenerator queryOpenAI;
 
     private void registerGuildCommand(ApplicationCommandRequest request) {
         dingoClient.getClient().getGuilds().subscribe(guild -> {
@@ -64,10 +68,21 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
         });
     }
 
-    private void registerCommand(DingoOperation action, String description, String... commandKeys) {
+    private void registerGlobalCommand(ApplicationCommandRequest request){
+        dingoClient.getClient().getApplicationId().subscribe(applicationId -> dingoClient.getClient()
+                .getApplicationService()
+                .createGlobalApplicationCommand(applicationId, request));
+    }
+
+    private void registerCommand(DingoActionGenerator action, String description, String... commandKeys) {
         String name = commandKeys[0];
         for (String command : commandKeys) {
-            registerGuildCommand(action.getOperation(name, description));
+            if(dingoClient.isTestBuild()){
+                registerGuildCommand(action.getOperation(name,description));
+            }
+            else {
+                registerGlobalCommand(action.getOperation(name, description));
+            }
             this.put(command, action);
         }
     }
@@ -75,15 +90,17 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private YoutubeSearchResultsContainer createYouTubeSearchContainer(DingoEventWrapper event) {
         YoutubeSearchResultsContainer container = new YoutubeSearchResultsContainer(event.getTimestamp());
-        // if a message comes in without an author it should be caught by the calling method.
-        searchResultsContainers.put(event
+        String userId = event
                 .getMember()
-                .orElseThrow(() -> new RuntimeException("Message did not have a member associated with it somehow. Shouldn't happen ever.")), container);
+                .orElseThrow(() -> new RuntimeException("Message did not have a member associated with it somehow. Shouldn't happen ever."))
+                        .getId().asString();
+        // if a message comes in without an author it should be caught by the calling method.
+        searchResultsContainers.put(userId, container);
         return container;
     }
 
     public void loadCommands() {
-        DefaultAudioPlayerManager manager = dingoClient.getDingoPlayer().getAudioplayerManager();
+        AudioPlayerManager manager = dingoClient.getDingoPlayer().getAudioplayerManager();
         TrackScheduler scheduler = dingoClient.getDingoPlayer().getScheduler();
         playMusic = (event, args) -> new PlayMusicImmediatelyAction(event, args, scheduler, manager, dingoClient);
         queryOpenAI = (event, args) -> new QueryOpenAI(event, args, dingoOpenAIQueryService);
@@ -144,12 +161,12 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
         if (!m.find()) {
             return null;
         }
-        YoutubeSearchResultsContainer container = searchResultsContainers.get(params.getAuthor());
+        YoutubeSearchResultsContainer container = searchResultsContainers.get(params.getAuthor().id().asString());
         if (container == null) {
             return null;
         }
         if (!container.getCreateInstant().isBefore(Instant.now().plus(messageTimeout, ChronoUnit.SECONDS))) {
-            searchResultsContainers.remove(params.getAuthor());
+            searchResultsContainers.remove(params.getAuthor().id().asString());
             return null;
         }
         int selectedVideoNumber;
@@ -161,7 +178,7 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
 
     public void handleApplicationCommand(ChatInputInteractionEvent event, GatewayDiscordClient gatewayDiscordClient) {
 
-        DingoOperation operation = get(event.getCommandName());
+        DingoActionGenerator operation = get(event.getCommandName());
         var channelSnowflake = event.getInteraction().getChannelId();
         gatewayDiscordClient.getChannelById(channelSnowflake).subscribe(channel -> {
             StringBuilder argsBuilder = new StringBuilder();
@@ -170,7 +187,7 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
                     argsBuilder.append(value.getRaw());
                 });
             });
-            DingoOperation action = get(event.getCommandName());
+            DingoActionGenerator action = get(event.getCommandName());
             if (action == null) {
                 throw new RuntimeException("A slash command somehow didn't have a matching operation. This should never happen.");
             }
@@ -189,7 +206,7 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
         // If we aren't handling a youtube search:
         // verify that our context is valid to actually continue retrieving a command for the message.
         // Messages are mostly not related to dingo bot commands and should be discarded asap.
-        DingoOperation defaultOperation = getCommandFromMessageParameters.defaultDingoOperationRetrieval().retrieveDefaultCommand();
+        DingoActionGenerator defaultOperation = getCommandFromMessageParameters.defaultDingoOperationRetrieval().retrieveDefaultCommand();
         if (defaultOperation == null) {
             return null;
         }
@@ -200,7 +217,7 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
             return new NullAction();
         }
         String commandTitle = command.get(0).toLowerCase();
-        DingoOperation operation = this.get(commandTitle);
+        DingoActionGenerator operation = this.get(commandTitle);
         List<String> commandArguments;
 
         // If there's no matching command, treat it as a play music command and use the command as the arguments
@@ -223,9 +240,9 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
         String message = event.getMessage().getContent();
         message = message.trim();
         User self = event.getClient().getSelf().block();
-        User author = event.getMessage().getAuthor().orElseThrow(() -> new RuntimeException("No author somehow..."));
+        UserData author = event.getMessage().getData().author();
 
-        if (dingoClient.getClient().getSelf().block().id().asString().equals(author.getId().asString())){
+        if (dingoClient.getClient().getSelf().block().id().asString().equals(author.id().asString())){
             logger.info("Marking message with appropriate save/delete emojis");
             removeMessageAfterTimeout(event);
             return;
@@ -239,7 +256,7 @@ public class MessageProcessor extends HashMap<String, DingoOperation> {
             message = message.replaceFirst("@\\S*", "").trim();
         }
         final String sanitizedMessage = message;
-        var user = dingoClient.getClient().getUserById(author.getId());
+        var user = dingoClient.getClient().getUserById(Snowflake.of(author.id()));
 
         // we need access to the channel which means that the command creation/retrieval needs to be done in a lambda...
         event.getMessage().getChannel().subscribe(channel -> {
